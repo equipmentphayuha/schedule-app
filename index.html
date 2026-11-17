@@ -6,10 +6,10 @@
     <title>Schedule Poster Generator - โรงพยาบาลพยุหะคีรี</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Itim, Prompt, Sarabun -->
+    <!-- Google Fonts: Itim, Prompt, Sarabun, Mitr, Kanit, Chonburi -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Itim&family=Kanit:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Mitr:wght@400;500;600;700&family=Prompt:wght@400;500;600;700;800;900&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         body {
@@ -19,7 +19,7 @@
 
         /* บังคับโหลดฟอนต์ล่วงหน้าใน DOM */
         .font-preload {
-            font-family: 'Itim', 'Prompt', 'Sarabun', sans-serif;
+            font-family: 'Itim', 'Prompt', 'Mitr', 'Kanit', 'Chonburi', 'Sarabun', sans-serif;
             position: absolute;
             left: -9999px;
             top: 0;
@@ -68,8 +68,12 @@
 
     <!-- Preload fonts to ensure canvas draws with correct metrics -->
     <div class="font-preload">
-        <span style="font-family: 'Itim';">ตารางปฏิบัติการ หัวหน้ากลุ่มงานบริหาร โรงพยาบาลพยุหะคีรี วันที่ ๑๒๓๔๕๖๗๘๙๐ ลา สัมภาษณ์ลูกจ้าง</span>
-        <span style="font-family: 'Prompt';">ตารางปฏิบัติการ หัวหน้ากลุ่มงานบริหาร โรงพยาบาลพยุหะคีรี วันที่ ๑๒๓๔๕๖๗๘๙๐ ลา สัมภาษณ์ลูกจ้าง</span>
+        <span style="font-family: 'Itim'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
+        <span style="font-family: 'Mitr'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
+        <span style="font-family: 'Kanit'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
+        <span style="font-family: 'Chonburi';">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
+        <span style="font-family: 'Prompt'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
+        <span style="font-family: 'Sarabun'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
     </div>
 
     <!-- Top Navbar -->
@@ -152,13 +156,26 @@
                         <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                         1. ข้อความส่วนหัว และรูปแบบตัวอักษร
                     </h2>
-                    <div class="flex items-center gap-1.5 text-xs">
-                        <span class="text-slate-500 font-medium">สไตล์ฟอนต์:</span>
-                        <select id="select-font-family" onchange="changeFontFamily(this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:ring-1 focus:ring-amber-500">
-                            <option value="Itim">ลายมือเป็นกันเอง (Itim - ตามแบบ)</option>
-                            <option value="Prompt">ทางการคมชัด (Prompt)</option>
-                            <option value="Sarabun">ราชการสุภาพ (Sarabun)</option>
-                        </select>
+                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-slate-500 font-medium">สไตล์ฟอนต์:</span>
+                            <select id="select-font-family" onchange="changeFontFamily(this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:ring-1 focus:ring-amber-500">
+                                <option value="Itim">ลายมือเป็นกันเอง (Itim - ตามแบบ)</option>
+                                <option value="Mitr">มีมิตร อ้วนกลม ทันสมัย (Mitr)</option>
+                                <option value="Kanit">คณิต คมชัด เข้มมีพลัง (Kanit)</option>
+                                <option value="Chonburi">ชลบุรี หัวหนาเอกลักษณ์ (Chonburi)</option>
+                                <option value="Prompt">พร้อมพ์ กึ่งทางการคมชัด (Prompt)</option>
+                                <option value="Sarabun">สารบรรณ ทางการสุภาพ (Sarabun)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-slate-500 font-medium">ความหนา:</span>
+                            <select id="select-font-weight" onchange="changeFontWeight(this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:ring-1 focus:ring-amber-500">
+                                <option value="normal">ปกติ (Normal)</option>
+                                <option value="bold">หนาเข้ม (Bold)</option>
+                                <option value="extra-bold">หนาพิเศษ-อ้วนเข้ม (Extra Bold)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -381,7 +398,8 @@
             header1: "ตารางปฏิบัติการ หัวหน้ากลุ่มงานบริหาร โรงพยาบาลพยุหะคีรี",
             header2: "วันที่ 16-20 พฤศจิกายน 2569",
             header3: "Personal Dashboard for หัวหน้ากลุ่มงานบริหาร",
-            fontFamily: "Itim", // 'Itim' | 'Prompt' | 'Sarabun'
+            fontFamily: "Itim", // 'Itim' | 'Mitr' | 'Kanit' | 'Chonburi' | 'Prompt' | 'Sarabun'
+            fontWeight: "bold", // 'normal' | 'bold' | 'extra-bold'
             theme: {
                 bgStart: "#7B583B",
                 bgEnd: "#523620",
@@ -474,6 +492,9 @@
         const TEMPLATES_KEY = 'phayuha_multi_templates_v3';
 
         let appState = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_DATA));
+        if (!appState.fontWeight) {
+            appState.fontWeight = "bold";
+        }
         let activeDayIndex = 0;
         let renderDebounceTimer = null;
 
@@ -497,6 +518,59 @@
             setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 2500);
+        }
+
+        function getCanvasFont(size, weightOverride = null) {
+            const fontName = appState.fontFamily || 'Itim';
+            const weightMode = weightOverride || appState.fontWeight || 'bold';
+            
+            let weight = 400;
+            let strokeExtra = 0;
+
+            if (weightMode === 'bold') {
+                if (fontName === 'Prompt') weight = 700;
+                else if (fontName === 'Mitr') weight = 600;
+                else if (fontName === 'Kanit') weight = 700;
+                else if (fontName === 'Sarabun') weight = 700;
+                else if (fontName === 'Chonburi') weight = 400;
+                else {
+                    // สำหรับฟอนต์ Itim ที่มีน้ำหนักเดียว (400) จะเสริม stroke ให้ตัวอ้วนเข้มกลมมนขึ้น
+                    weight = 700;
+                    strokeExtra = Math.max(1, size * 0.038);
+                }
+            } else if (weightMode === 'extra-bold') {
+                if (fontName === 'Prompt') weight = 900;
+                else if (fontName === 'Mitr') weight = 700;
+                else if (fontName === 'Kanit') weight = 800;
+                else if (fontName === 'Sarabun') weight = 800;
+                else if (fontName === 'Chonburi') weight = 400;
+                else {
+                    weight = 700;
+                    strokeExtra = Math.max(1.5, size * 0.055);
+                }
+            } else {
+                // normal
+                weight = 400;
+                strokeExtra = 0;
+            }
+
+            return {
+                font: `${weight} ${size}px "${fontName}", "Sarabun", sans-serif`,
+                strokeExtra: strokeExtra
+            };
+        }
+
+        function fillStrokedText(ctx, text, x, y, strokeWidth, fillColor, strokeColor = null) {
+            if (strokeWidth && strokeWidth > 0) {
+                ctx.save();
+                ctx.strokeStyle = strokeColor || fillColor;
+                ctx.lineWidth = strokeWidth;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeText(text, x, y);
+                ctx.restore();
+            }
+            ctx.fillText(text, x, y);
         }
 
         // ==================== CANVAS 2D RENDERING ENGINE (1500 x 2000 px) ====================
@@ -545,30 +619,36 @@
             // บรรทัดที่ 1: ชื่อตาราง / ตำแหน่ง (Auto-shrink ให้พอดี 1 บรรทัด)
             const maxHeaderWidth = W - 110;
             let h1Size = 56;
-            ctx.font = `400 ${h1Size}px "${currentFont}", "Sarabun", sans-serif`;
+            let fObj1 = getCanvasFont(h1Size);
+            ctx.font = fObj1.font;
             while (ctx.measureText(appState.header1).width > maxHeaderWidth && h1Size > 26) {
                 h1Size -= 1;
-                ctx.font = `400 ${h1Size}px "${currentFont}", "Sarabun", sans-serif`;
+                fObj1 = getCanvasFont(h1Size);
+                ctx.font = fObj1.font;
             }
-            ctx.fillText(appState.header1, W / 2, 102);
+            fillStrokedText(ctx, appState.header1, W / 2, 102, fObj1.strokeExtra, '#FFFFFF');
 
             // บรรทัดที่ 2: ช่วงวันที่
             let h2Size = 54;
-            ctx.font = `400 ${h2Size}px "${currentFont}", "Sarabun", sans-serif`;
+            let fObj2 = getCanvasFont(h2Size);
+            ctx.font = fObj2.font;
             while (ctx.measureText(appState.header2).width > maxHeaderWidth && h2Size > 26) {
                 h2Size -= 1;
-                ctx.font = `400 ${h2Size}px "${currentFont}", "Sarabun", sans-serif`;
+                fObj2 = getCanvasFont(h2Size);
+                ctx.font = fObj2.font;
             }
-            ctx.fillText(appState.header2, W / 2, 174);
+            fillStrokedText(ctx, appState.header2, W / 2, 174, fObj2.strokeExtra, '#FFFFFF');
 
             // บรรทัดที่ 3: คำบรรยายย่อย
             let h3Size = 37;
-            ctx.font = `400 ${h3Size}px "${currentFont}", "Sarabun", sans-serif`;
+            let fObj3 = getCanvasFont(h3Size);
+            ctx.font = fObj3.font;
             while (ctx.measureText(appState.header3).width > maxHeaderWidth && h3Size > 20) {
                 h3Size -= 1;
-                ctx.font = `400 ${h3Size}px "${currentFont}", "Sarabun", sans-serif`;
+                fObj3 = getCanvasFont(h3Size);
+                ctx.font = fObj3.font;
             }
-            ctx.fillText(appState.header3, W / 2, 236);
+            fillStrokedText(ctx, appState.header3, W / 2, 236, fObj3.strokeExtra, '#FFFFFF');
             ctx.restore();
 
             // 3. วาดการ์ดทั้ง 5 วัน
@@ -596,7 +676,8 @@
                 // --- 3.2 วาดแถบวันที่ (Pill) ทับกึ่งกลางขอบบนของการ์ด ---
                 const pillH = 76;
                 const pillY = y - (pillH / 2);
-                ctx.font = `400 44px "${currentFont}", "Sarabun", sans-serif`;
+                let fObjPillTest = getCanvasFont(44);
+                ctx.font = fObjPillTest.font;
                 const titleMetrics = ctx.measureText(day.dateTitle);
                 const pillW = Math.min(cardW - 80, Math.max(540, titleMetrics.width + 130));
                 const pillX = (W - pillW) / 2;
@@ -617,12 +698,14 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 let pillFontSize = 44;
-                ctx.font = `400 ${pillFontSize}px "${currentFont}", "Sarabun", sans-serif`;
+                let fObjPill = getCanvasFont(pillFontSize);
+                ctx.font = fObjPill.font;
                 while (ctx.measureText(day.dateTitle).width > pillW - 60 && pillFontSize > 26) {
                     pillFontSize -= 1;
-                    ctx.font = `400 ${pillFontSize}px "${currentFont}", "Sarabun", sans-serif`;
+                    fObjPill = getCanvasFont(pillFontSize);
+                    ctx.font = fObjPill.font;
                 }
-                ctx.fillText(day.dateTitle, W / 2, pillY + (pillH / 2) + 2);
+                fillStrokedText(ctx, day.dateTitle, W / 2, pillY + (pillH / 2) + 2, fObjPill.strokeExtra, '#FFFFFF');
                 ctx.restore();
 
                 // --- 3.3 วาดเนื้อหาด้านในการ์ด ---
@@ -637,12 +720,14 @@
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     let singleSize = 78;
-                    ctx.font = `400 ${singleSize}px "${currentFont}", "Sarabun", sans-serif`;
+                    let fObjSingle = getCanvasFont(singleSize);
+                    ctx.font = fObjSingle.font;
                     while (ctx.measureText(day.singleText).width > cardW - 120 && singleSize > 36) {
                         singleSize -= 2;
-                        ctx.font = `400 ${singleSize}px "${currentFont}", "Sarabun", sans-serif`;
+                        fObjSingle = getCanvasFont(singleSize);
+                        ctx.font = fObjSingle.font;
                     }
-                    ctx.fillText(day.singleText, W / 2, contentTop + (contentHeight / 2));
+                    fillStrokedText(ctx, day.singleText, W / 2, contentTop + (contentHeight / 2), fObjSingle.strokeExtra, '#1E293B');
                     ctx.restore();
                 } else {
                     // โหมด 2 ช่วงเวลา (เช้า - บ่าย)
@@ -662,14 +747,14 @@
                     const row1CenterY = contentTop + (contentHeight * 0.25);
                     const row2CenterY = contentTop + (contentHeight * 0.75);
 
-                    drawScheduleRow(ctx, cardX, cardW, row1CenterY, day.morning, currentFont);
-                    drawScheduleRow(ctx, cardX, cardW, row2CenterY, day.afternoon, currentFont);
+                    drawScheduleRow(ctx, cardX, cardW, row1CenterY, day.morning);
+                    drawScheduleRow(ctx, cardX, cardW, row2CenterY, day.afternoon);
                 }
             });
         }
 
         // วาดแถวเวลา | กิจกรรม | สถานที่
-        function drawScheduleRow(ctx, cardX, cardW, centerY, period, fontName) {
+        function drawScheduleRow(ctx, cardX, cardW, centerY, period) {
             const inkColor = '#1E293B';
             ctx.save();
             ctx.fillStyle = inkColor;
@@ -691,34 +776,36 @@
 
             // 1. เวลา
             drawVectorIcon(ctx, 'clock', col1IconX, centerY, 44);
-            drawFittedText(ctx, period.time, col1TextX, centerY, col1MaxW, 44, fontName);
+            drawFittedText(ctx, period.time, col1TextX, centerY, col1MaxW, 44);
 
             // 2. กิจกรรม
             if (period.icon && period.icon !== 'none') {
                 drawVectorIcon(ctx, period.icon, col2IconX, centerY, 48);
-                drawFittedText(ctx, period.activity, col2TextX, centerY, col2MaxW, 44, fontName);
+                drawFittedText(ctx, period.activity, col2TextX, centerY, col2MaxW, 44);
             } else {
-                drawFittedText(ctx, period.activity, col2IconX, centerY, col2MaxW + 66, 44, fontName);
+                drawFittedText(ctx, period.activity, col2IconX, centerY, col2MaxW + 66, 44);
             }
 
             // 3. สถานที่
             if (period.location && period.location.trim() !== '') {
                 drawVectorIcon(ctx, 'pin', col3IconX, centerY, 44);
-                drawFittedText(ctx, period.location, col3TextX, centerY, col3MaxW, 44, fontName);
+                drawFittedText(ctx, period.location, col3TextX, centerY, col3MaxW, 44);
             }
 
             ctx.restore();
         }
 
-        function drawFittedText(ctx, text, x, y, maxWidth, defaultSize, fontName) {
+        function drawFittedText(ctx, text, x, y, maxWidth, defaultSize) {
             if (!text) return;
             let fontSize = defaultSize;
-            ctx.font = `400 ${fontSize}px "${fontName}", "Sarabun", sans-serif`;
+            let fObj = getCanvasFont(fontSize);
+            ctx.font = fObj.font;
             while (ctx.measureText(text).width > maxWidth && fontSize > 22) {
                 fontSize -= 1;
-                ctx.font = `400 ${fontSize}px "${fontName}", "Sarabun", sans-serif`;
+                fObj = getCanvasFont(fontSize);
+                ctx.font = fObj.font;
             }
-            ctx.fillText(text, x, y + 2);
+            fillStrokedText(ctx, text, x, y + 2, fObj.strokeExtra, ctx.fillStyle);
         }
 
         function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -805,6 +892,30 @@
                 ctx.arc(19.8, 15.8, 2.6, Math.PI, 0, false);
                 ctx.stroke();
             } 
+            else if (type === 'desk') {
+                // โต๊ะทำงานผู้บริหารพร้อมเก้าอี้และคอมพิวเตอร์/แฟ้ม
+                ctx.beginPath();
+                // หัวคนนั่งทำงาน
+                ctx.arc(12, 5.5, 2.2, 0, Math.PI * 2);
+                ctx.stroke();
+                // ตัวคนนั่ง
+                ctx.beginPath();
+                ctx.arc(12, 12, 3.8, Math.PI, 0, false);
+                ctx.stroke();
+                // โต๊ะทำงาน
+                ctx.strokeRect(3.5, 11.5, 17, 3.5);
+                // ขาโต๊ะซ้าย-ขวา
+                ctx.beginPath();
+                ctx.moveTo(5.5, 15); ctx.lineTo(5.5, 20.5);
+                ctx.moveTo(18.5, 15); ctx.lineTo(18.5, 20.5);
+                // ลิ้นชักโต๊ะด้านขวา
+                ctx.rect(14, 15, 4.5, 5);
+                ctx.stroke();
+                // โน้ตบุ๊ก/เอกสารบนโต๊ะ
+                ctx.beginPath();
+                ctx.moveTo(10, 11.5); ctx.lineTo(14, 11.5);
+                ctx.stroke();
+            }
             else if (type === 'briefcase') {
                 drawRoundedRect(ctx, 2.5, 7, 19, 13, 2.2);
                 ctx.stroke();
@@ -877,6 +988,7 @@
             document.getElementById('input-header-2').value = appState.header2;
             document.getElementById('input-header-3').value = appState.header3;
             document.getElementById('select-font-family').value = appState.fontFamily || 'Itim';
+            document.getElementById('select-font-weight').value = appState.fontWeight || 'bold';
 
             document.getElementById('color-bg-start').value = appState.theme.bgStart;
             document.getElementById('hex-bg-start').textContent = appState.theme.bgStart.toUpperCase();
@@ -1013,6 +1125,7 @@
                                         <label class="block text-slate-500 mb-0.5">ไอคอน</label>
                                         <select onchange="updatePeriodField(${activeDayIndex}, 'morning', 'icon', this.value)"
                                             class="w-full px-2 py-1.5 border border-slate-300 bg-white rounded-lg outline-none focus:border-amber-500 font-medium">
+                                            <option value="desk" ${day.morning.icon === 'desk' ? 'selected' : ''}>🏢 ปฏิบัติราชการ (โต๊ะทำงาน)</option>
                                             <option value="briefcase" ${day.morning.icon === 'briefcase' ? 'selected' : ''}>💼 ปฏิบัติราชการ (กระเป๋า)</option>
                                             <option value="meeting" ${day.morning.icon === 'meeting' ? 'selected' : ''}>👥 ประชุม/สัมภาษณ์</option>
                                             <option value="building" ${day.morning.icon === 'building' ? 'selected' : ''}>🏥 รพ./สถานที่ราชการ</option>
@@ -1049,6 +1162,7 @@
                                         <label class="block text-slate-500 mb-0.5">ไอคอน</label>
                                         <select onchange="updatePeriodField(${activeDayIndex}, 'afternoon', 'icon', this.value)"
                                             class="w-full px-2 py-1.5 border border-slate-300 bg-white rounded-lg outline-none focus:border-amber-500 font-medium">
+                                            <option value="desk" ${day.afternoon.icon === 'desk' ? 'selected' : ''}>🏢 ปฏิบัติราชการ (โต๊ะทำงาน)</option>
                                             <option value="meeting" ${day.afternoon.icon === 'meeting' ? 'selected' : ''}>👥 ประชุม/สัมภาษณ์</option>
                                             <option value="briefcase" ${day.afternoon.icon === 'briefcase' ? 'selected' : ''}>💼 ปฏิบัติราชการ (กระเป๋า)</option>
                                             <option value="building" ${day.afternoon.icon === 'building' ? 'selected' : ''}>🏥 รพ./สถานที่ราชการ</option>
@@ -1099,6 +1213,14 @@
             saveState();
             requestRender();
             showToast(`เปลี่ยนฟอนต์เป็น "${fontName}" เรียบร้อย`, '🔤');
+        }
+
+        function changeFontWeight(weight) {
+            appState.fontWeight = weight;
+            saveState();
+            requestRender();
+            const labelMap = { 'normal': 'ปกติ', 'bold': 'หนาเข้ม', 'extra-bold': 'หนาพิเศษ-อ้วนเข้ม' };
+            showToast(`ปรับความหนาเป็น "${labelMap[weight] || weight}" เรียบร้อย`, '💪');
         }
 
         function toggleDayMode(dayIndex, mode) {
