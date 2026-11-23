@@ -6,20 +6,28 @@
     <title>Schedule Poster Generator - โรงพยาบาลพยุหะคีรี</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Itim, Prompt, Sarabun, Mitr, Kanit, Chonburi -->
+    <!-- Google Fonts: Itim, Prompt, Sarabun (พร้อม Fallback System Fonts กรณีออฟไลน์) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Itim&family=Kanit:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Mitr:wght@400;500;600;700&family=Prompt:wght@400;500;600;700;800;900&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Firebase App & Firestore (Modular via ESM / UMD fallback) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     
     <style>
+        /* Fallback CSS พื้นฐาน กรณี CDN ไม่โหลดหรือทำงานแบบ Offline */
+        :root {
+            --font-family-fallback: 'Prompt', 'TH Sarabun New', 'Sarabun', 'Leelawadee UI', 'Tahoma', sans-serif;
+        }
         body {
-            font-family: 'Prompt', sans-serif;
+            font-family: var(--font-family-fallback);
             background-color: #f1f5f9;
         }
 
         /* บังคับโหลดฟอนต์ล่วงหน้าใน DOM */
         .font-preload {
-            font-family: 'Itim', 'Prompt', 'Mitr', 'Kanit', 'Chonburi', 'Sarabun', sans-serif;
+            font-family: 'Itim', 'Prompt', 'Sarabun', sans-serif;
             position: absolute;
             left: -9999px;
             top: 0;
@@ -68,12 +76,8 @@
 
     <!-- Preload fonts to ensure canvas draws with correct metrics -->
     <div class="font-preload">
-        <span style="font-family: 'Itim'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
-        <span style="font-family: 'Mitr'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
-        <span style="font-family: 'Kanit'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
-        <span style="font-family: 'Chonburi';">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
-        <span style="font-family: 'Prompt'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
-        <span style="font-family: 'Sarabun'; font-weight: 700;">ตารางปฏิบัติราชการผู้อำนวยการโรงพยาบาลพยุหะคีรี วันที่ ๙-๑๓ พฤศจิกายน ๒๕๖๙ ปฏิบัติราชการ ประชุม</span>
+        <span style="font-family: 'Itim';">ตารางปฏิบัติการ หัวหน้ากลุ่มงานบริหาร โรงพยาบาลพยุหะคีรี วันที่ ๑๒๓๔๕๖๗๘๙๐ ลา สัมภาษณ์ลูกจ้าง</span>
+        <span style="font-family: 'Prompt';">ตารางปฏิบัติการ หัวหน้ากลุ่มงานบริหาร โรงพยาบาลพยุหะคีรี วันที่ ๑๒๓๔๕๖๗๘๙๐ ลา สัมภาษณ์ลูกจ้าง</span>
     </div>
 
     <!-- Top Navbar -->
@@ -106,6 +110,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
                     </svg>
                     <span>รายการเทมเพลต (<span id="tpl-count-badge">0</span>)</span>
+                    <span id="cloud-status-indicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Firebase Cloud ออนไลน์"></span>
                 </button>
 
                 <!-- Reset Button -->
@@ -122,6 +127,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                     <span>เซฟ JPG</span>
+                </button>
+
+                <!-- Copy to Clipboard (ส่งเข้า LINE ทันที) -->
+                <button onclick="copyPosterToClipboard()" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-sm transition flex items-center gap-1.5" title="คัดลอกรูปลง Clipboard แล้วกด Ctrl+V แปะลง LINE ได้ทันที">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                    </svg>
+                    <span>คัดลอกรูป (Ctrl+V ใน LINE)</span>
                 </button>
 
                 <!-- Export PNG -->
@@ -149,33 +162,57 @@
         <!-- ฝั่งซ้าย: แผงควบคุมแก้ไขข้อมูล (Editor Panel) -->
         <section class="lg:col-span-6 space-y-4 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:pr-2 pb-8">
             
-            <!-- กล่องที่ 1: ข้อความส่วนหัว & การเลือกฟอนต์ -->
+            <!-- กล่องที่ 1: เลือกสัปดาห์ & วันที่อัตโนมัติ (ช่วยลดเวลาพิมพ์) -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-3">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <h2 class="text-sm font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        📅 สัปดาห์ปฏิบัติงาน (เปลี่ยนวันทั้งชุดอัตโนมัติ)
+                    </h2>
+                    <span class="text-[11px] font-medium text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">อัปเดตทุกวันใน 1 คลิก</span>
+                </div>
+                
+                <div class="space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex-1 min-w-[180px]">
+                            <label class="block text-xs font-medium text-slate-600 mb-1">เลือกวันในสัปดาห์ (ระบบคำนวณวันจันทร์-อาทิตย์ให้อัตโนมัติ):</label>
+                            <input type="date" id="input-week-picker" onchange="onWeekPickerChange(this.value)" class="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50 font-medium">
+                        </div>
+                        <div class="flex items-end gap-1.5 pt-4 sm:pt-0">
+                            <button type="button" onclick="shiftWeek(-1)" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition flex items-center gap-1" title="ย้อนไป 1 สัปดาห์">
+                                ◀ สัปดาห์ก่อน
+                            </button>
+                            <button type="button" onclick="jumpToCurrentWeek()" class="px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200 transition" title="กลับมาสัปดาห์ปัจจุบัน">
+                                สัปดาห์นี้
+                            </button>
+                            <button type="button" onclick="shiftWeek(1)" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition flex items-center gap-1" title="ไปข้างหน้า 1 สัปดาห์">
+                                สัปดาห์หน้า ▶
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-150">
+                        <span>ช่วงวันที่คำนวณได้: <strong id="week-range-preview" class="text-indigo-800 font-semibold">-</strong></span>
+                        <button type="button" onclick="applyWeekDatesToAllDays(true)" class="text-indigo-600 hover:text-indigo-800 font-semibold underline" title="เขียนทับชื่อวันและหัวข้อวันที่ทั้งหมดตามสัปดาห์นี้">
+                            🔄 ซิงค์วันที่ลงตารางทันที
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- กล่องที่ 2: ข้อความส่วนหัว & การเลือกฟอนต์ -->
             <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-3">
                 <div class="flex items-center justify-between border-b pb-2">
                     <h2 class="text-sm font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                         1. ข้อความส่วนหัว และรูปแบบตัวอักษร
                     </h2>
-                    <div class="flex flex-wrap items-center gap-2 text-xs">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-slate-500 font-medium">สไตล์ฟอนต์:</span>
-                            <select id="select-font-family" onchange="changeFontFamily(this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:ring-1 focus:ring-amber-500">
-                                <option value="Itim">ลายมือเป็นกันเอง (Itim - ตามแบบ)</option>
-                                <option value="Mitr">มีมิตร อ้วนกลม ทันสมัย (Mitr)</option>
-                                <option value="Kanit">คณิต คมชัด เข้มมีพลัง (Kanit)</option>
-                                <option value="Chonburi">ชลบุรี หัวหนาเอกลักษณ์ (Chonburi)</option>
-                                <option value="Prompt">พร้อมพ์ กึ่งทางการคมชัด (Prompt)</option>
-                                <option value="Sarabun">สารบรรณ ทางการสุภาพ (Sarabun)</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-slate-500 font-medium">ความหนา:</span>
-                            <select id="select-font-weight" onchange="changeFontWeight(this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:ring-1 focus:ring-amber-500">
-                                <option value="normal">ปกติ (Normal)</option>
-                                <option value="bold">หนาเข้ม (Bold)</option>
-                                <option value="extra-bold">หนาพิเศษ-อ้วนเข้ม (Extra Bold)</option>
-                            </select>
-                        </div>
+                    <div class="flex items-center gap-1.5 text-xs">
+                        <span class="text-slate-500 font-medium">สไตล์ฟอนต์:</span>
+                        <select id="select-font-family" onchange="changeFontFamily(this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none focus:ring-1 focus:ring-amber-500">
+                            <option value="Itim">ลายมือเป็นกันเอง (Itim - ตามแบบ)</option>
+                            <option value="Prompt">ทางการคมชัด (Prompt)</option>
+                            <option value="Sarabun">ราชการสุภาพ (Sarabun)</option>
+                        </select>
                     </div>
                 </div>
 
@@ -299,20 +336,41 @@
                 </div>
             </div>
 
-            <!-- กล่องที่ 3: แท็บเลือกวัน (1-5) เพื่อความรวดเร็วและสะอาดตา -->
+            <!-- กล่องที่ 3: แท็บเลือกวัน พร้อมตัวเลือกเพิ่มเสาร์-อาทิตย์ -->
             <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-4">
-                <div class="flex items-center justify-between border-b pb-2">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
                     <h2 class="text-sm font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                        3. ข้อมูลตารางงานประจำวัน (เลือกวันเพื่อแก้ไข)
+                        3. ข้อมูลตารางงานประจำวัน
                     </h2>
-                    <span class="text-xs text-slate-400">บันทึกอัตโนมัติ</span>
+                    
+                    <!-- ตัวเลือกเปิด/ปิดวันเสาร์และอาทิตย์ -->
+                    <div class="flex items-center gap-2 bg-slate-100 px-2.5 py-1 rounded-xl text-xs text-slate-700">
+                        <span class="font-medium text-slate-600">แสดงวัน:</span>
+                        <label class="inline-flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="toggle-saturday" onchange="toggleWeekendDay('saturday', this.checked)" class="rounded text-amber-600 focus:ring-amber-500">
+                            <span class="font-semibold text-purple-700">เสาร์</span>
+                        </label>
+                        <span class="text-slate-300">|</span>
+                        <label class="inline-flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="toggle-sunday" onchange="toggleWeekendDay('sunday', this.checked)" class="rounded text-amber-600 focus:ring-amber-500">
+                            <span class="font-semibold text-red-600">อาทิตย์</span>
+                        </label>
+                    </div>
                 </div>
 
-                <!-- แท็บปุ่มเลือกวัน จันทร์-ศุกร์ -->
+                <!-- แท็บปุ่มเลือกวัน -->
                 <div class="flex flex-wrap gap-1.5" id="day-tabs-container">
                     <!-- สร้างโดย JS -->
                 </div>
+
+                <!-- Datalist สำหรับ Quick Suggestions Autocomplete -->
+                <datalist id="activities-preset">
+                    <!-- สร้างโดย JS -->
+                </datalist>
+                <datalist id="locations-preset">
+                    <!-- สร้างโดย JS -->
+                </datalist>
 
                 <!-- เนื้อหาแบบฟอร์มของวันที่ถูกเลือก -->
                 <div id="day-editor-form" class="pt-2">
@@ -377,16 +435,30 @@
     <div id="loadModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path></svg>
-                    รายการเทมเพลตที่บันทึกไว้
-                </h3>
-                <button onclick="closeLoadModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+                <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path></svg>
+                        รายการเทมเพลต
+                    </h3>
+                    <span id="cloud-badge" class="px-2 py-0.5 text-[11px] font-semibold bg-emerald-100 text-emerald-800 rounded-full flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Firebase Cloud
+                    </span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="syncTemplatesFromCloud(true)" title="รีเฟรชข้อมูลจาก Cloud" class="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-slate-100 rounded-lg transition text-xs flex items-center gap-1">
+                        <svg id="sync-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>ซิงค์</span>
+                    </button>
+                    <button onclick="closeLoadModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+                </div>
             </div>
             <div id="tplListContainer" class="max-h-[350px] overflow-y-auto space-y-2 pr-1">
                 <!-- แสดงรายการเทมเพลตโดย JS -->
             </div>
-            <div class="flex justify-end pt-2 border-t">
+            <div class="flex justify-between items-center pt-2 border-t text-xs text-slate-500">
+                <span id="cloud-last-sync-time">ซิงค์อัตโนมัติกับทุกเครื่อง</span>
                 <button onclick="closeLoadModal()" class="px-4 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl">ปิดหน้าต่าง</button>
             </div>
         </div>
@@ -398,8 +470,7 @@
             header1: "ตารางปฏิบัติการ หัวหน้ากลุ่มงานบริหาร โรงพยาบาลพยุหะคีรี",
             header2: "วันที่ 16-20 พฤศจิกายน 2569",
             header3: "Personal Dashboard for หัวหน้ากลุ่มงานบริหาร",
-            fontFamily: "Itim", // 'Itim' | 'Mitr' | 'Kanit' | 'Chonburi' | 'Prompt' | 'Sarabun'
-            fontWeight: "bold", // 'normal' | 'bold' | 'extra-bold'
+            fontFamily: "Itim", // 'Itim' | 'Prompt' | 'Sarabun'
             theme: {
                 bgStart: "#7B583B",
                 bgEnd: "#523620",
@@ -466,6 +537,171 @@
             "ลาอุปสมบท / ประกอบพิธีฮัจย์"
         ];
 
+        // ตัวเลือกกิจกรรมที่ใช้บ่อย (Quick Suggestions สำหรับ Autocomplete)
+        const COMMON_ACTIVITIES = [
+            "ปฏิบัติราชการ",
+            "ประชุมประจำสัปดาห์ (กวป.)",
+            "ประชุมคณะกรรมการบริหาร รพ.",
+            "ประชุมติดตามความก้าวหน้างาน",
+            "สัมภาษณ์ลูกจ้างชั่วคราว",
+            "ตรวจเยี่ยมหน่วยงานภายใน รพ.",
+            "ร่วมกิจกรรมจิตอาสาพัฒนา",
+            "ประชุมทางไกลผ่านระบบ Zoom",
+            "นิเทศติดตามงานกลุ่มงาน",
+            "อบรมเชิงปฏิบัติการ",
+            "จัดทำแผนปฏิบัติการและงบประมาณ",
+            "เวรปฏิบัติการนอกเวลาราชการ"
+        ];
+
+        // ตัวเลือกสถานที่ที่ใช้บ่อย
+        const COMMON_LOCATIONS = [
+            "รพ.พยุหะคีรี",
+            "ห้องประชุมราชาวดี รพ.พยุหะคีรี",
+            "ห้องประชุมชัยพฤกษ์",
+            "สสจ.นครสวรรค์",
+            "ศาลากลางจังหวัดนครสวรรค์",
+            "สสอ.พยุหะคีรี",
+            "รพ.สต.ในเครือข่าย",
+            "ออนไลน์ (Zoom Meeting)"
+        ];
+
+        // ตัวแปรและฟังก์ชันจัดการวันและสัปดาห์อัตโนมัติ (ภาษาไทย + พ.ศ.)
+        const THAI_MONTHS_FULL = [
+            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+        ];
+        const THAI_DAYS_INFO = [
+            { dow: 1, id: 1, prefixShort: "จันทร์", full: "วันจันทร์ที่" },
+            { dow: 2, id: 2, prefixShort: "อังคาร", full: "วันอังคารที่" },
+            { dow: 3, id: 3, prefixShort: "พุธ", full: "วันพุธที่" },
+            { dow: 4, id: 4, prefixShort: "พฤหัสฯ", full: "วันพฤหัสบดีที่" },
+            { dow: 5, id: 5, prefixShort: "ศุกร์", full: "วันศุกร์ที่" },
+            { dow: 6, id: 6, prefixShort: "เสาร์", full: "วันเสาร์ที่" },
+            { dow: 0, id: 7, prefixShort: "อาทิตย์", full: "วันอาทิตย์ที่" }
+        ];
+
+        // หาช่วงวันจันทร์ของสัปดาห์จากวันที่กำหนด
+        function getMondayOfWeek(d) {
+            const date = new Date(d);
+            const day = date.getDay(); // 0 = Sunday, 1 = Monday, ...
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // ปรับให้วันจันทร์เป็นวันแรกของสัปดาห์
+            return new Date(date.setDate(diff));
+        }
+
+        function formatDateToISO(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // คำนวณวันที่ของวันในสัปดาห์ (offset: 0 = จันทร์, 1 = อังคาร, ..., 5 = เสาร์, 6 = อาทิตย์)
+        function getDateForDayOffset(baseMonday, offset) {
+            const d = new Date(baseMonday);
+            d.setDate(d.getDate() + offset);
+            const dateNum = d.getDate();
+            const monthThai = THAI_MONTHS_FULL[d.getMonth()];
+            const yearBE = d.getFullYear() + 543;
+            return {
+                dateObj: d,
+                dayNum: dateNum,
+                month: monthThai,
+                yearBE: yearBE
+            };
+        }
+
+        // ดึงวันจันทร์อ้างอิงปัจจุบันของระบบ
+        function getCurrentReferenceMonday() {
+            if (appState.weekStartDate) {
+                const parts = appState.weekStartDate.split('-');
+                if (parts.length === 3) {
+                    const parsed = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    if (!isNaN(parsed.getTime())) {
+                        return getMondayOfWeek(parsed);
+                    }
+                }
+            }
+            return getMondayOfWeek(new Date());
+        }
+
+        // อัปเดตวันที่ให้ทุกวันใน appState.days ตามวันจันทร์ที่เลือก
+        function applyWeekDatesToAllDays(showNotice = false) {
+            const monday = getCurrentReferenceMonday();
+            appState.weekStartDate = formatDateToISO(monday);
+
+            // วันศุกร์ (offset 4)
+            const friInfo = getDateForDayOffset(monday, 4);
+            const monInfo = getDateForDayOffset(monday, 0);
+
+            // ปรับชื่อและวันที่ในแต่ละวันตาม ID
+            appState.days.forEach(day => {
+                let offset = 0;
+                let dayInfoMeta = null;
+
+                if (day.id === 1 || (day.shortName && day.shortName.includes('จันทร์'))) {
+                    offset = 0; dayInfoMeta = THAI_DAYS_INFO[0];
+                } else if (day.id === 2 || (day.shortName && day.shortName.includes('อังคาร'))) {
+                    offset = 1; dayInfoMeta = THAI_DAYS_INFO[1];
+                } else if (day.id === 3 || (day.shortName && day.shortName.includes('พุธ'))) {
+                    offset = 2; dayInfoMeta = THAI_DAYS_INFO[2];
+                } else if (day.id === 4 || (day.shortName && (day.shortName.includes('พฤหัส') || day.shortName.includes('พฤหัสบดี')))) {
+                    offset = 3; dayInfoMeta = THAI_DAYS_INFO[3];
+                } else if (day.id === 5 || (day.shortName && day.shortName.includes('ศุกร์'))) {
+                    offset = 4; dayInfoMeta = THAI_DAYS_INFO[4];
+                } else if (day.id === 6 || (day.shortName && day.shortName.includes('เสาร์'))) {
+                    offset = 5; dayInfoMeta = THAI_DAYS_INFO[5];
+                } else if (day.id === 7 || (day.shortName && day.shortName.includes('อาทิตย์'))) {
+                    offset = 6; dayInfoMeta = THAI_DAYS_INFO[6];
+                }
+
+                if (dayInfoMeta) {
+                    const calc = getDateForDayOffset(monday, offset);
+                    day.shortName = `${dayInfoMeta.prefixShort} ${calc.dayNum}`;
+                    day.dateTitle = `${dayInfoMeta.full} ${calc.dayNum} ${calc.month} ${calc.yearBE}`;
+                }
+            });
+
+            // ปรับบรรทัดที่ 2 (ช่วงวันที่) อัตโนมัติ เช่น "วันที่ 16-20 พฤศจิกายน 2569"
+            if (monInfo.month === friInfo.month) {
+                appState.header2 = `วันที่ ${monInfo.dayNum}-${friInfo.dayNum} ${monInfo.month} ${monInfo.yearBE}`;
+            } else {
+                appState.header2 = `วันที่ ${monInfo.dayNum} ${monInfo.month} - ${friInfo.dayNum} ${friInfo.month} ${monInfo.yearBE}`;
+            }
+
+            saveState();
+            renderEditor();
+            requestRender();
+
+            if (showNotice) {
+                showToast(`ซิงค์วันที่ทั้งสัปดาห์ (${appState.header2}) เรียบร้อย`, '🗓️');
+            }
+        }
+
+        // เมื่อผู้ใช้เลือกปฏิทิน date picker
+        function onWeekPickerChange(dateVal) {
+            if (!dateVal) return;
+            const parts = dateVal.split('-');
+            const chosen = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const monday = getMondayOfWeek(chosen);
+            appState.weekStartDate = formatDateToISO(monday);
+            applyWeekDatesToAllDays(true);
+        }
+
+        // ปุ่มเลื่อนสัปดาห์ (-1 สัปดาห์ก่อนหน้า, +1 สัปดาห์ถัดไป)
+        function shiftWeek(offsetWeeks) {
+            const monday = getCurrentReferenceMonday();
+            monday.setDate(monday.getDate() + (offsetWeeks * 7));
+            appState.weekStartDate = formatDateToISO(monday);
+            applyWeekDatesToAllDays(true);
+        }
+
+        // ปุ่มกลับสัปดาห์นี้
+        function jumpToCurrentWeek() {
+            const monday = getMondayOfWeek(new Date());
+            appState.weekStartDate = formatDateToISO(monday);
+            applyWeekDatesToAllDays(true);
+        }
+
         // ตัวเลือกวันหยุดราชการประจำปี / วันหยุดพิเศษ
         const HOLIDAY_PRESETS = [
             "วันหยุดราชการ",
@@ -491,9 +727,66 @@
         const STORAGE_KEY = 'phayuha_schedule_v3';
         const TEMPLATES_KEY = 'phayuha_multi_templates_v3';
 
-        let appState = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_DATA));
-        if (!appState.fontWeight) {
-            appState.fontWeight = "bold";
+        // Firebase Configuration & Firestore Init
+        const firebaseConfig = {
+            apiKey: "AIzaSyClAx-XBSM7pTttOCrBEaeIZ7IIE-xdnAU",
+            authDomain: "schedule-f8ec2.firebaseapp.com",
+            projectId: "schedule-f8ec2",
+            storageBucket: "schedule-f8ec2.firebasestorage.app",
+            messagingSenderId: "414317896152",
+            appId: "1:414317896152:web:e0df9864ff12ddce6892ad",
+            measurementId: "G-MWJK242LXK"
+        };
+
+        let db = null;
+        let isFirebaseReady = false;
+        try {
+            if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                isFirebaseReady = true;
+            }
+        } catch (e) {
+            console.warn('Firebase init error, fallback to REST API / LocalStorage:', e);
+        }
+
+        // ปรับข้อมูลให้อยู่ในรูปแบบ items array เสมอ (Backward Compatible)
+        function normalizePeriod(p) {
+            if (!p) {
+                return { items: [{ time: "08.30-12.00", icon: "briefcase", activity: "ปฏิบัติราชการ", location: "รพ.พยุหะคีรี" }] };
+            }
+            if (Array.isArray(p.items) && p.items.length > 0) {
+                return p;
+            }
+            return {
+                items: [
+                    {
+                        time: p.time || "",
+                        icon: p.icon || "briefcase",
+                        activity: p.activity || "",
+                        location: p.location || ""
+                    }
+                ]
+            };
+        }
+
+        function normalizeDay(day) {
+            if (!day) return day;
+            day.morning = normalizePeriod(day.morning);
+            day.afternoon = normalizePeriod(day.afternoon);
+            return day;
+        }
+
+        let rawState = null;
+        try {
+            rawState = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        } catch(e) {}
+
+        let appState = rawState || JSON.parse(JSON.stringify(DEFAULT_DATA));
+        if (appState && Array.isArray(appState.days)) {
+            appState.days.forEach(normalizeDay);
         }
         let activeDayIndex = 0;
         let renderDebounceTimer = null;
@@ -520,59 +813,6 @@
             }, 2500);
         }
 
-        function getCanvasFont(size, weightOverride = null) {
-            const fontName = appState.fontFamily || 'Itim';
-            const weightMode = weightOverride || appState.fontWeight || 'bold';
-            
-            let weight = 400;
-            let strokeExtra = 0;
-
-            if (weightMode === 'bold') {
-                if (fontName === 'Prompt') weight = 700;
-                else if (fontName === 'Mitr') weight = 600;
-                else if (fontName === 'Kanit') weight = 700;
-                else if (fontName === 'Sarabun') weight = 700;
-                else if (fontName === 'Chonburi') weight = 400;
-                else {
-                    // สำหรับฟอนต์ Itim ที่มีน้ำหนักเดียว (400) จะเสริม stroke ให้ตัวอ้วนเข้มกลมมนขึ้น
-                    weight = 700;
-                    strokeExtra = Math.max(1, size * 0.038);
-                }
-            } else if (weightMode === 'extra-bold') {
-                if (fontName === 'Prompt') weight = 900;
-                else if (fontName === 'Mitr') weight = 700;
-                else if (fontName === 'Kanit') weight = 800;
-                else if (fontName === 'Sarabun') weight = 800;
-                else if (fontName === 'Chonburi') weight = 400;
-                else {
-                    weight = 700;
-                    strokeExtra = Math.max(1.5, size * 0.055);
-                }
-            } else {
-                // normal
-                weight = 400;
-                strokeExtra = 0;
-            }
-
-            return {
-                font: `${weight} ${size}px "${fontName}", "Sarabun", sans-serif`,
-                strokeExtra: strokeExtra
-            };
-        }
-
-        function fillStrokedText(ctx, text, x, y, strokeWidth, fillColor, strokeColor = null) {
-            if (strokeWidth && strokeWidth > 0) {
-                ctx.save();
-                ctx.strokeStyle = strokeColor || fillColor;
-                ctx.lineWidth = strokeWidth;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.strokeText(text, x, y);
-                ctx.restore();
-            }
-            ctx.fillText(text, x, y);
-        }
-
         // ==================== CANVAS 2D RENDERING ENGINE (1500 x 2000 px) ====================
         function drawPosterCanvas() {
             const canvas = document.getElementById('poster-canvas');
@@ -581,6 +821,8 @@
             const W = 1500;
             const H = 2000;
             const currentFont = appState.fontFamily || 'Itim';
+            // Font stack พร้อม System Thai Fonts รองรับกรณี Offline
+            const fontStack = `"${currentFont}", "TH Sarabun New", "Sarabun", "Leelawadee UI", "Tahoma", sans-serif`;
 
             ctx.clearRect(0, 0, W, H);
 
@@ -619,45 +861,63 @@
             // บรรทัดที่ 1: ชื่อตาราง / ตำแหน่ง (Auto-shrink ให้พอดี 1 บรรทัด)
             const maxHeaderWidth = W - 110;
             let h1Size = 56;
-            let fObj1 = getCanvasFont(h1Size);
-            ctx.font = fObj1.font;
+            ctx.font = `400 ${h1Size}px ${fontStack}`;
             while (ctx.measureText(appState.header1).width > maxHeaderWidth && h1Size > 26) {
                 h1Size -= 1;
-                fObj1 = getCanvasFont(h1Size);
-                ctx.font = fObj1.font;
+                ctx.font = `400 ${h1Size}px ${fontStack}`;
             }
-            fillStrokedText(ctx, appState.header1, W / 2, 102, fObj1.strokeExtra, '#FFFFFF');
+            ctx.fillText(appState.header1, W / 2, 102);
 
             // บรรทัดที่ 2: ช่วงวันที่
             let h2Size = 54;
-            let fObj2 = getCanvasFont(h2Size);
-            ctx.font = fObj2.font;
+            ctx.font = `400 ${h2Size}px ${fontStack}`;
             while (ctx.measureText(appState.header2).width > maxHeaderWidth && h2Size > 26) {
                 h2Size -= 1;
-                fObj2 = getCanvasFont(h2Size);
-                ctx.font = fObj2.font;
+                ctx.font = `400 ${h2Size}px ${fontStack}`;
             }
-            fillStrokedText(ctx, appState.header2, W / 2, 174, fObj2.strokeExtra, '#FFFFFF');
+            ctx.fillText(appState.header2, W / 2, 174);
 
             // บรรทัดที่ 3: คำบรรยายย่อย
             let h3Size = 37;
-            let fObj3 = getCanvasFont(h3Size);
-            ctx.font = fObj3.font;
+            ctx.font = `400 ${h3Size}px ${fontStack}`;
             while (ctx.measureText(appState.header3).width > maxHeaderWidth && h3Size > 20) {
                 h3Size -= 1;
-                fObj3 = getCanvasFont(h3Size);
-                ctx.font = fObj3.font;
+                ctx.font = `400 ${h3Size}px ${fontStack}`;
             }
-            fillStrokedText(ctx, appState.header3, W / 2, 236, fObj3.strokeExtra, '#FFFFFF');
+            ctx.fillText(appState.header3, W / 2, 236);
             ctx.restore();
 
-            // 3. วาดการ์ดทั้ง 5 วัน
-            const startY = 315;
+            // 3. วาดการ์ดแต่ละวัน (คำนวณขนาดและการจัดวางอัตโนมัติตามจำนวนวัน 5-7 วัน)
+            const numDays = appState.days.length || 5;
+            let startY = 315;
             const cardX = 76;
             const cardW = W - (cardX * 2); // 1348 px
-            const cardH = 268;
-            const cardGap = 62;
-            const cardRadius = 42;
+            
+            // ปรับความสูงและช่องว่างของการ์ดให้พอดี 2000px เสมอ
+            let cardH = 268;
+            let cardGap = 62;
+            let cardRadius = 42;
+            let pillH = 76;
+            let basePillFontSize = 44;
+            let scaleRatio = 1.0;
+
+            if (numDays === 6) {
+                // สำหรับ 6 วัน (รวมวันเสาร์)
+                cardH = 230;
+                cardGap = 42;
+                startY = 295;
+                pillH = 68;
+                basePillFontSize = 39;
+                scaleRatio = 0.88;
+            } else if (numDays >= 7) {
+                // สำหรับ 7 วัน (รวมเสาร์-อาทิตย์)
+                cardH = 198;
+                cardGap = 36;
+                startY = 285;
+                pillH = 62;
+                basePillFontSize = 35;
+                scaleRatio = 0.76;
+            }
 
             appState.days.forEach((day, idx) => {
                 const y = startY + idx * (cardH + cardGap);
@@ -665,21 +925,19 @@
                 // --- 3.1 วาดการ์ดสีครีม (#F2EFE9) พร้อมเงา ---
                 ctx.save();
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.22)';
-                ctx.shadowBlur = 18;
+                ctx.shadowBlur = numDays > 5 ? 12 : 18;
                 ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 8;
+                ctx.shadowOffsetY = numDays > 5 ? 5 : 8;
                 ctx.fillStyle = '#F2EFE9';
                 drawRoundedRect(ctx, cardX, y, cardW, cardH, cardRadius);
                 ctx.fill();
                 ctx.restore();
 
                 // --- 3.2 วาดแถบวันที่ (Pill) ทับกึ่งกลางขอบบนของการ์ด ---
-                const pillH = 76;
                 const pillY = y - (pillH / 2);
-                let fObjPillTest = getCanvasFont(44);
-                ctx.font = fObjPillTest.font;
+                ctx.font = `400 ${basePillFontSize}px ${fontStack}`;
                 const titleMetrics = ctx.measureText(day.dateTitle);
-                const pillW = Math.min(cardW - 80, Math.max(540, titleMetrics.width + 130));
+                const pillW = Math.min(cardW - 80, Math.max(480, titleMetrics.width + 120));
                 const pillX = (W - pillW) / 2;
 
                 ctx.save();
@@ -697,37 +955,33 @@
                 ctx.fillStyle = '#FFFFFF';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                let pillFontSize = 44;
-                let fObjPill = getCanvasFont(pillFontSize);
-                ctx.font = fObjPill.font;
-                while (ctx.measureText(day.dateTitle).width > pillW - 60 && pillFontSize > 26) {
+                let pillFontSize = basePillFontSize;
+                ctx.font = `400 ${pillFontSize}px ${fontStack}`;
+                while (ctx.measureText(day.dateTitle).width > pillW - 50 && pillFontSize > 22) {
                     pillFontSize -= 1;
-                    fObjPill = getCanvasFont(pillFontSize);
-                    ctx.font = fObjPill.font;
+                    ctx.font = `400 ${pillFontSize}px ${fontStack}`;
                 }
-                fillStrokedText(ctx, day.dateTitle, W / 2, pillY + (pillH / 2) + 2, fObjPill.strokeExtra, '#FFFFFF');
+                ctx.fillText(day.dateTitle, W / 2, pillY + (pillH / 2) + 2);
                 ctx.restore();
 
                 // --- 3.3 วาดเนื้อหาด้านในการ์ด ---
-                const contentTop = y + (pillH / 2) + 6;
-                const contentBottom = y + cardH - 12;
+                const contentTop = y + (pillH / 2) + 4;
+                const contentBottom = y + cardH - (numDays > 5 ? 6 : 12);
                 const contentHeight = contentBottom - contentTop;
 
                 if (day.mode === 'single') {
-                    // โหมดข้อความเดี่ยว (เช่น "ลา")
+                    // โหมดข้อความเดี่ยว (เช่น "ลา", "วันหยุดราชการ")
                     ctx.save();
                     ctx.fillStyle = '#1E293B';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    let singleSize = 78;
-                    let fObjSingle = getCanvasFont(singleSize);
-                    ctx.font = fObjSingle.font;
-                    while (ctx.measureText(day.singleText).width > cardW - 120 && singleSize > 36) {
+                    let singleSize = Math.round(78 * scaleRatio);
+                    ctx.font = `400 ${singleSize}px ${fontStack}`;
+                    while (ctx.measureText(day.singleText).width > cardW - 120 && singleSize > 28) {
                         singleSize -= 2;
-                        fObjSingle = getCanvasFont(singleSize);
-                        ctx.font = fObjSingle.font;
+                        ctx.font = `400 ${singleSize}px ${fontStack}`;
                     }
-                    fillStrokedText(ctx, day.singleText, W / 2, contentTop + (contentHeight / 2), fObjSingle.strokeExtra, '#1E293B');
+                    ctx.fillText(day.singleText, W / 2, contentTop + (contentHeight / 2));
                     ctx.restore();
                 } else {
                     // โหมด 2 ช่วงเวลา (เช้า - บ่าย)
@@ -736,7 +990,7 @@
                     // เส้นคั่นกึ่งกลาง
                     ctx.save();
                     ctx.strokeStyle = '#D5D0C5';
-                    ctx.lineWidth = 2.5;
+                    ctx.lineWidth = numDays > 5 ? 1.8 : 2.5;
                     ctx.beginPath();
                     ctx.moveTo(cardX + 42, midY);
                     ctx.lineTo(cardX + cardW - 42, midY);
@@ -744,17 +998,54 @@
                     ctx.restore();
 
                     // แถวเช้าและแถวบ่าย
-                    const row1CenterY = contentTop + (contentHeight * 0.25);
-                    const row2CenterY = contentTop + (contentHeight * 0.75);
+                    const period1Top = contentTop;
+                    const period1H = contentHeight * 0.5;
+                    const period2Top = midY;
+                    const period2H = contentHeight * 0.5;
 
-                    drawScheduleRow(ctx, cardX, cardW, row1CenterY, day.morning);
-                    drawScheduleRow(ctx, cardX, cardW, row2CenterY, day.afternoon);
+                    drawSchedulePeriod(ctx, cardX, cardW, period1Top, period1H, day.morning, currentFont, scaleRatio);
+                    drawSchedulePeriod(ctx, cardX, cardW, period2Top, period2H, day.afternoon, currentFont, scaleRatio);
                 }
             });
         }
 
+        // วาดช่วงเวลา (รองรับ 1 หรือ 2 งานต่อช่วง พร้อมปรับขนาดตามจำนวนวัน)
+        function drawSchedulePeriod(ctx, cardX, cardW, topY, height, period, fontName, scaleRatio = 1.0) {
+            const normPeriod = normalizePeriod(period);
+            const items = normPeriod.items && normPeriod.items.length > 0 ? normPeriod.items : [normPeriod];
+
+            if (items.length <= 1) {
+                // 1 งาน: วาดกึ่งกลางช่วงเวลา (ขนาดตัวอักษร 44px * scaleRatio)
+                const centerY = topY + (height / 2);
+                const fontSize = Math.round(44 * scaleRatio);
+                const iconSize = Math.round(44 * scaleRatio);
+                drawSingleScheduleItem(ctx, cardX, cardW, centerY, items[0], fontSize, iconSize, fontName);
+            } else {
+                // 2 งาน: แบ่งเป็น 2 แถวย่อยอย่างสวยงามพอดีช่อง
+                const row1Y = topY + (height * 0.28);
+                const row2Y = topY + (height * 0.74);
+
+                // เส้นคั่นประจุดเบาๆ ระหว่างงานที่ 1 กับงานที่ 2
+                ctx.save();
+                ctx.strokeStyle = '#E2DDD2';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([6, 6]);
+                ctx.beginPath();
+                ctx.moveTo(cardX + 60, topY + (height * 0.51));
+                ctx.lineTo(cardX + cardW - 60, topY + (height * 0.51));
+                ctx.stroke();
+                ctx.restore();
+
+                const fontSize = Math.round(33 * scaleRatio);
+                const iconSize = Math.round(34 * scaleRatio);
+                drawSingleScheduleItem(ctx, cardX, cardW, row1Y, items[0], fontSize, iconSize, fontName);
+                drawSingleScheduleItem(ctx, cardX, cardW, row2Y, items[1], fontSize, iconSize, fontName);
+            }
+        }
+
         // วาดแถวเวลา | กิจกรรม | สถานที่
-        function drawScheduleRow(ctx, cardX, cardW, centerY, period) {
+        function drawSingleScheduleItem(ctx, cardX, cardW, centerY, item, defaultFontSize, iconSize, fontName) {
+            if (!item) return;
             const inkColor = '#1E293B';
             ctx.save();
             ctx.fillStyle = inkColor;
@@ -763,49 +1054,48 @@
             ctx.textAlign = 'left';
 
             const col1IconX = cardX + 46;
-            const col1TextX = col1IconX + 58;
+            const col1TextX = col1IconX + (iconSize > 38 ? 58 : 46);
             const col1MaxW = 245;
 
             const col2IconX = cardX + 385;
-            const col2TextX = col2IconX + 66;
+            const col2TextX = col2IconX + (iconSize > 38 ? 66 : 52);
             const col2MaxW = 475;
 
             const col3IconX = cardX + 950;
-            const col3TextX = col3IconX + 52;
+            const col3TextX = col3IconX + (iconSize > 38 ? 52 : 42);
             const col3MaxW = 310;
 
             // 1. เวลา
-            drawVectorIcon(ctx, 'clock', col1IconX, centerY, 44);
-            drawFittedText(ctx, period.time, col1TextX, centerY, col1MaxW, 44);
+            drawVectorIcon(ctx, 'clock', col1IconX, centerY, iconSize);
+            drawFittedText(ctx, item.time, col1TextX, centerY, col1MaxW, defaultFontSize, fontName);
 
             // 2. กิจกรรม
-            if (period.icon && period.icon !== 'none') {
-                drawVectorIcon(ctx, period.icon, col2IconX, centerY, 48);
-                drawFittedText(ctx, period.activity, col2TextX, centerY, col2MaxW, 44);
+            if (item.icon && item.icon !== 'none') {
+                drawVectorIcon(ctx, item.icon, col2IconX, centerY, iconSize + 4);
+                drawFittedText(ctx, item.activity, col2TextX, centerY, col2MaxW, defaultFontSize, fontName);
             } else {
-                drawFittedText(ctx, period.activity, col2IconX, centerY, col2MaxW + 66, 44);
+                drawFittedText(ctx, item.activity, col2IconX, centerY, col2MaxW + 66, defaultFontSize, fontName);
             }
 
             // 3. สถานที่
-            if (period.location && period.location.trim() !== '') {
-                drawVectorIcon(ctx, 'pin', col3IconX, centerY, 44);
-                drawFittedText(ctx, period.location, col3TextX, centerY, col3MaxW, 44);
+            if (item.location && item.location.trim() !== '') {
+                drawVectorIcon(ctx, 'pin', col3IconX, centerY, iconSize);
+                drawFittedText(ctx, item.location, col3TextX, centerY, col3MaxW, defaultFontSize, fontName);
             }
 
             ctx.restore();
         }
 
-        function drawFittedText(ctx, text, x, y, maxWidth, defaultSize) {
+        function drawFittedText(ctx, text, x, y, maxWidth, defaultSize, fontName) {
             if (!text) return;
             let fontSize = defaultSize;
-            let fObj = getCanvasFont(fontSize);
-            ctx.font = fObj.font;
-            while (ctx.measureText(text).width > maxWidth && fontSize > 22) {
+            const fontStack = `"${fontName}", "TH Sarabun New", "Sarabun", "Leelawadee UI", "Tahoma", sans-serif`;
+            ctx.font = `400 ${fontSize}px ${fontStack}`;
+            while (ctx.measureText(text).width > maxWidth && fontSize > 18) {
                 fontSize -= 1;
-                fObj = getCanvasFont(fontSize);
-                ctx.font = fObj.font;
+                ctx.font = `400 ${fontSize}px ${fontStack}`;
             }
-            fillStrokedText(ctx, text, x, y + 2, fObj.strokeExtra, ctx.fillStyle);
+            ctx.fillText(text, x, y + 2);
         }
 
         function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -892,30 +1182,6 @@
                 ctx.arc(19.8, 15.8, 2.6, Math.PI, 0, false);
                 ctx.stroke();
             } 
-            else if (type === 'desk') {
-                // โต๊ะทำงานผู้บริหารพร้อมเก้าอี้และคอมพิวเตอร์/แฟ้ม
-                ctx.beginPath();
-                // หัวคนนั่งทำงาน
-                ctx.arc(12, 5.5, 2.2, 0, Math.PI * 2);
-                ctx.stroke();
-                // ตัวคนนั่ง
-                ctx.beginPath();
-                ctx.arc(12, 12, 3.8, Math.PI, 0, false);
-                ctx.stroke();
-                // โต๊ะทำงาน
-                ctx.strokeRect(3.5, 11.5, 17, 3.5);
-                // ขาโต๊ะซ้าย-ขวา
-                ctx.beginPath();
-                ctx.moveTo(5.5, 15); ctx.lineTo(5.5, 20.5);
-                ctx.moveTo(18.5, 15); ctx.lineTo(18.5, 20.5);
-                // ลิ้นชักโต๊ะด้านขวา
-                ctx.rect(14, 15, 4.5, 5);
-                ctx.stroke();
-                // โน้ตบุ๊ก/เอกสารบนโต๊ะ
-                ctx.beginPath();
-                ctx.moveTo(10, 11.5); ctx.lineTo(14, 11.5);
-                ctx.stroke();
-            }
             else if (type === 'briefcase') {
                 drawRoundedRect(ctx, 2.5, 7, 19, 13, 2.2);
                 ctx.stroke();
@@ -984,11 +1250,23 @@
 
         // ==================== UI EDITOR LOGIC ====================
         function renderEditor() {
+            // ซิงค์ค่าตัวเลือกสัปดาห์
+            const monday = getCurrentReferenceMonday();
+            const weekPickerEl = document.getElementById('input-week-picker');
+            if (weekPickerEl) {
+                weekPickerEl.value = formatDateToISO(monday);
+            }
+            const previewEl = document.getElementById('week-range-preview');
+            if (previewEl) {
+                const monInfo = getDateForDayOffset(monday, 0);
+                const friInfo = getDateForDayOffset(monday, 4);
+                previewEl.textContent = `${monInfo.dayNum} ${monInfo.month} - ${friInfo.dayNum} ${friInfo.month} ${friInfo.yearBE}`;
+            }
+
             document.getElementById('input-header-1').value = appState.header1;
             document.getElementById('input-header-2').value = appState.header2;
             document.getElementById('input-header-3').value = appState.header3;
             document.getElementById('select-font-family').value = appState.fontFamily || 'Itim';
-            document.getElementById('select-font-weight').value = appState.fontWeight || 'bold';
 
             document.getElementById('color-bg-start').value = appState.theme.bgStart;
             document.getElementById('hex-bg-start').textContent = appState.theme.bgStart.toUpperCase();
@@ -997,7 +1275,29 @@
             document.getElementById('color-pill').value = appState.theme.pillColor;
             document.getElementById('hex-pill').textContent = appState.theme.pillColor.toUpperCase();
 
+            // ตรวจสอบสถานะ Checkbox วันเสาร์และวันอาทิตย์
+            const hasSaturday = appState.days.some(d => d.id === 6 || (d.shortName && d.shortName.includes('เสาร์')));
+            const hasSunday = appState.days.some(d => d.id === 7 || (d.shortName && d.shortName.includes('อาทิตย์')));
+            const satCb = document.getElementById('toggle-saturday');
+            const sunCb = document.getElementById('toggle-sunday');
+            if (satCb) satCb.checked = hasSaturday;
+            if (sunCb) sunCb.checked = hasSunday;
+
+            // Render Datalist สำหรับ Quick Suggestions Autocomplete
+            const actList = document.getElementById('activities-preset');
+            if (actList) {
+                actList.innerHTML = COMMON_ACTIVITIES.map(a => `<option value="${escapeHtml(a)}">`).join('');
+            }
+            const locList = document.getElementById('locations-preset');
+            if (locList) {
+                locList.innerHTML = COMMON_LOCATIONS.map(l => `<option value="${escapeHtml(l)}">`).join('');
+            }
+
             // Render Day Tabs
+            if (activeDayIndex >= appState.days.length) {
+                activeDayIndex = Math.max(0, appState.days.length - 1);
+            }
+
             const tabsContainer = document.getElementById('day-tabs-container');
             tabsContainer.innerHTML = '';
             appState.days.forEach((day, index) => {
@@ -1022,6 +1322,61 @@
 
             renderActiveDayForm();
             updateTemplateCountBadge();
+        }
+
+        // ฟังก์ชันเปิด/ปิดวันเสาร์และอาทิตย์ (คำนวณวันที่ตามสัปดาห์ปัจจุบันแบบไดนามิก)
+        function toggleWeekendDay(dayType, isChecked) {
+            const monday = getCurrentReferenceMonday();
+
+            if (dayType === 'saturday') {
+                const satIdx = appState.days.findIndex(d => d.id === 6 || (d.shortName && d.shortName.includes('เสาร์')));
+                if (isChecked && satIdx === -1) {
+                    const satCalc = getDateForDayOffset(monday, 5);
+                    const satDay = {
+                        id: 6,
+                        shortName: `เสาร์ ${satCalc.dayNum}`,
+                        dateTitle: `วันเสาร์ที่ ${satCalc.dayNum} ${satCalc.month} ${satCalc.yearBE}`,
+                        mode: "single",
+                        singleText: "วันหยุดราชการ",
+                        morning: { items: [{ time: "08.30-12.00", icon: "briefcase", activity: "เวรปฏิบัติการ", location: "รพ.พยุหะคีรี" }] },
+                        afternoon: { items: [{ time: "13.00-16.30", icon: "meeting", activity: "เวรปฏิบัติการ", location: "รพ.พยุหะคีรี" }] }
+                    };
+                    // แทรกก่อนวันอาทิตย์ถ้ามี
+                    const sunIdx = appState.days.findIndex(d => d.id === 7 || (d.shortName && d.shortName.includes('อาทิตย์')));
+                    if (sunIdx !== -1) {
+                        appState.days.splice(sunIdx, 0, satDay);
+                    } else {
+                        appState.days.push(satDay);
+                    }
+                    showToast('เพิ่มวันเสาร์ในตารางแล้ว', '📅');
+                } else if (!isChecked && satIdx !== -1) {
+                    appState.days.splice(satIdx, 1);
+                    showToast('นำวันเสาร์ออกจากตารางแล้ว', '🗑️');
+                }
+            } else if (dayType === 'sunday') {
+                const sunIdx = appState.days.findIndex(d => d.id === 7 || (d.shortName && d.shortName.includes('อาทิตย์')));
+                if (isChecked && sunIdx === -1) {
+                    const sunCalc = getDateForDayOffset(monday, 6);
+                    const sunDay = {
+                        id: 7,
+                        shortName: `อาทิตย์ ${sunCalc.dayNum}`,
+                        dateTitle: `วันอาทิตย์ที่ ${sunCalc.dayNum} ${sunCalc.month} ${sunCalc.yearBE}`,
+                        mode: "single",
+                        singleText: "วันหยุดราชการ",
+                        morning: { items: [{ time: "08.30-12.00", icon: "briefcase", activity: "เวรปฏิบัติการ", location: "รพ.พยุหะคีรี" }] },
+                        afternoon: { items: [{ time: "13.00-16.30", icon: "meeting", activity: "เวรปฏิบัติการ", location: "รพ.พยุหะคีรี" }] }
+                    };
+                    appState.days.push(sunDay);
+                    showToast('เพิ่มวันอาทิตย์ในตารางแล้ว', '📅');
+                } else if (!isChecked && sunIdx !== -1) {
+                    appState.days.splice(sunIdx, 1);
+                    showToast('นำวันอาทิตย์ออกจากตารางแล้ว', '🗑️');
+                }
+            }
+
+            saveState();
+            renderEditor();
+            requestRender();
         }
 
         function renderDayTabs() {
@@ -1110,81 +1465,96 @@
                         </div>
                     ` : `
                         <div class="space-y-3">
-                            <!-- ช่วงเช้า -->
-                            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2 shadow-xs">
-                                <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5 border-b pb-1.5">
-                                    <span>☀️ ช่วงที่ 1 (ช่วงเช้า)</span>
-                                </div>
-                                <div class="grid grid-cols-12 gap-2 text-xs">
-                                    <div class="col-span-5 sm:col-span-4">
-                                        <label class="block text-slate-500 mb-0.5">เวลา</label>
-                                        <input type="text" value="${escapeHtml(day.morning.time)}" oninput="updatePeriodField(${activeDayIndex}, 'morning', 'time', this.value)"
-                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500">
-                                    </div>
-                                    <div class="col-span-7 sm:col-span-4">
-                                        <label class="block text-slate-500 mb-0.5">ไอคอน</label>
-                                        <select onchange="updatePeriodField(${activeDayIndex}, 'morning', 'icon', this.value)"
-                                            class="w-full px-2 py-1.5 border border-slate-300 bg-white rounded-lg outline-none focus:border-amber-500 font-medium">
-                                            <option value="desk" ${day.morning.icon === 'desk' ? 'selected' : ''}>🏢 ปฏิบัติราชการ (โต๊ะทำงาน)</option>
-                                            <option value="briefcase" ${day.morning.icon === 'briefcase' ? 'selected' : ''}>💼 ปฏิบัติราชการ (กระเป๋า)</option>
-                                            <option value="meeting" ${day.morning.icon === 'meeting' ? 'selected' : ''}>👥 ประชุม/สัมภาษณ์</option>
-                                            <option value="building" ${day.morning.icon === 'building' ? 'selected' : ''}>🏥 รพ./สถานที่ราชการ</option>
-                                            <option value="car" ${day.morning.icon === 'car' ? 'selected' : ''}>🚗 เดินทาง/นอกสถานที่</option>
-                                            <option value="document" ${day.morning.icon === 'document' ? 'selected' : ''}>📄 แผนงาน/เอกสาร</option>
-                                            <option value="none" ${day.morning.icon === 'none' ? 'selected' : ''}>➖ ไม่มีไอคอน</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-span-12 sm:col-span-4">
-                                        <label class="block text-slate-500 mb-0.5">สถานที่</label>
-                                        <input type="text" value="${escapeHtml(day.morning.location)}" oninput="updatePeriodField(${activeDayIndex}, 'morning', 'location', this.value)"
-                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500">
-                                    </div>
-                                    <div class="col-span-12">
-                                        <label class="block text-slate-500 mb-0.5">กิจกรรม / รายละเอียดงาน</label>
-                                        <input type="text" value="${escapeHtml(day.morning.activity)}" oninput="updatePeriodField(${activeDayIndex}, 'morning', 'activity', this.value)"
-                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ช่วงบ่าย -->
-                            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2 shadow-xs">
-                                <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5 border-b pb-1.5">
-                                    <span>🌤️ ช่วงที่ 2 (ช่วงบ่าย)</span>
-                                </div>
-                                <div class="grid grid-cols-12 gap-2 text-xs">
-                                    <div class="col-span-5 sm:col-span-4">
-                                        <label class="block text-slate-500 mb-0.5">เวลา</label>
-                                        <input type="text" value="${escapeHtml(day.afternoon.time)}" oninput="updatePeriodField(${activeDayIndex}, 'afternoon', 'time', this.value)"
-                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500">
-                                    </div>
-                                    <div class="col-span-7 sm:col-span-4">
-                                        <label class="block text-slate-500 mb-0.5">ไอคอน</label>
-                                        <select onchange="updatePeriodField(${activeDayIndex}, 'afternoon', 'icon', this.value)"
-                                            class="w-full px-2 py-1.5 border border-slate-300 bg-white rounded-lg outline-none focus:border-amber-500 font-medium">
-                                            <option value="desk" ${day.afternoon.icon === 'desk' ? 'selected' : ''}>🏢 ปฏิบัติราชการ (โต๊ะทำงาน)</option>
-                                            <option value="meeting" ${day.afternoon.icon === 'meeting' ? 'selected' : ''}>👥 ประชุม/สัมภาษณ์</option>
-                                            <option value="briefcase" ${day.afternoon.icon === 'briefcase' ? 'selected' : ''}>💼 ปฏิบัติราชการ (กระเป๋า)</option>
-                                            <option value="building" ${day.afternoon.icon === 'building' ? 'selected' : ''}>🏥 รพ./สถานที่ราชการ</option>
-                                            <option value="car" ${day.afternoon.icon === 'car' ? 'selected' : ''}>🚗 เดินทาง/นอกสถานที่</option>
-                                            <option value="document" ${day.afternoon.icon === 'document' ? 'selected' : ''}>📄 แผนงาน/เอกสาร</option>
-                                            <option value="none" ${day.afternoon.icon === 'none' ? 'selected' : ''}>➖ ไม่มีไอคอน</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-span-12 sm:col-span-4">
-                                        <label class="block text-slate-500 mb-0.5">สถานที่</label>
-                                        <input type="text" value="${escapeHtml(day.afternoon.location)}" oninput="updatePeriodField(${activeDayIndex}, 'afternoon', 'location', this.value)"
-                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500">
-                                    </div>
-                                    <div class="col-span-12">
-                                        <label class="block text-slate-500 mb-0.5">กิจกรรม / รายละเอียดงาน</label>
-                                        <input type="text" value="${escapeHtml(day.afternoon.activity)}" oninput="updatePeriodField(${activeDayIndex}, 'afternoon', 'activity', this.value)"
-                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500">
-                                    </div>
-                                </div>
-                            </div>
+                            ${renderPeriodEditorCard(day, 'morning', '☀️ ช่วงเช้า (ช่วงที่ 1)')}
+                            ${renderPeriodEditorCard(day, 'afternoon', '🌤️ ช่วงบ่าย (ช่วงที่ 2)')}
                         </div>
                     `}
+                </div>
+            `;
+        }
+
+        function renderPeriodEditorCard(day, periodKey, periodTitle) {
+            const period = normalizePeriod(day[periodKey]);
+            const items = period.items;
+            const hasSecondItem = items.length > 1;
+
+            return `
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-3 shadow-xs">
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-800">${periodTitle}</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-full font-medium ${hasSecondItem ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}">
+                                ${hasSecondItem ? '2 งาน' : '1 งาน'}
+                            </span>
+                        </div>
+                        <div>
+                            ${!hasSecondItem ? `
+                                <button type="button" onclick="addPeriodItem(${activeDayIndex}, '${periodKey}')" 
+                                    class="px-2.5 py-1 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-lg transition flex items-center gap-1 shadow-xs">
+                                    <span>➕ เพิ่มงานที่ 2</span>
+                                </button>
+                            ` : `
+                                <button type="button" onclick="removePeriodItem(${activeDayIndex}, '${periodKey}', 1)" 
+                                    class="px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition flex items-center gap-1">
+                                    <span>🗑️ ลบงานที่ 2</span>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+
+                    <!-- รายการงานในแต่ละช่วง -->
+                    <div class="space-y-3">
+                        ${items.map((item, idx) => `
+                            <div class="${hasSecondItem ? 'p-2.5 rounded-lg border ' + (idx === 0 ? 'border-amber-200 bg-amber-50/30' : 'border-blue-200 bg-blue-50/30') : ''} space-y-2">
+                                ${hasSecondItem ? `
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-bold ${idx === 0 ? 'text-amber-800' : 'text-blue-800'} flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-amber-500' : 'bg-blue-500'}"></span>
+                                            งานที่ ${idx + 1}
+                                        </span>
+                                    </div>
+                                ` : ''}
+
+                                <div class="grid grid-cols-12 gap-2 text-xs">
+                                    <div class="col-span-5 sm:col-span-4">
+                                        <label class="block text-slate-500 mb-0.5">เวลา</label>
+                                        <input type="text" value="${escapeHtml(item.time)}" 
+                                            placeholder="เช่น 08.30-10.00"
+                                            oninput="updateItemField(${activeDayIndex}, '${periodKey}', ${idx}, 'time', this.value)"
+                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500 bg-white">
+                                    </div>
+                                    <div class="col-span-7 sm:col-span-4">
+                                        <label class="block text-slate-500 mb-0.5">ไอคอน</label>
+                                        <select onchange="updateItemField(${activeDayIndex}, '${periodKey}', ${idx}, 'icon', this.value)"
+                                            class="w-full px-2 py-1.5 border border-slate-300 bg-white rounded-lg outline-none focus:border-amber-500 font-medium">
+                                            <option value="briefcase" ${item.icon === 'briefcase' ? 'selected' : ''}>💼 ปฏิบัติราชการ (กระเป๋า)</option>
+                                            <option value="meeting" ${item.icon === 'meeting' ? 'selected' : ''}>👥 ประชุม/สัมภาษณ์</option>
+                                            <option value="building" ${item.icon === 'building' ? 'selected' : ''}>🏥 รพ./สถานที่ราชการ</option>
+                                            <option value="car" ${item.icon === 'car' ? 'selected' : ''}>🚗 เดินทาง/นอกสถานที่</option>
+                                            <option value="document" ${item.icon === 'document' ? 'selected' : ''}>📄 แผนงาน/เอกสาร</option>
+                                            <option value="none" ${item.icon === 'none' ? 'selected' : ''}>➖ ไม่มีไอคอน</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <label class="block text-slate-500 mb-0.5">สถานที่</label>
+                                        <input type="text" value="${escapeHtml(item.location)}" 
+                                            placeholder="เช่น รพ.พยุหะคีรี"
+                                            list="locations-preset"
+                                            oninput="updateItemField(${activeDayIndex}, '${periodKey}', ${idx}, 'location', this.value)"
+                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500 bg-white">
+                                    </div>
+                                    <div class="col-span-12">
+                                        <label class="block text-slate-500 mb-0.5">กิจกรรม / รายละเอียดงาน (เลือกจากที่ใช้บ่อยหรือพิมพ์เอง)</label>
+                                        <input type="text" value="${escapeHtml(item.activity)}" 
+                                            placeholder="เช่น ปฏิบัติราชการ หรือ ประชุมประจำสัปดาห์"
+                                            list="activities-preset"
+                                            oninput="updateItemField(${activeDayIndex}, '${periodKey}', ${idx}, 'activity', this.value)"
+                                            class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-amber-500 bg-white">
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `;
         }
@@ -1197,6 +1567,49 @@
             if (input) input.value = value;
             requestRender();
             showToast(`เลือก: "${value}"`, '📌');
+        }
+
+        function addPeriodItem(dayIndex, periodKey) {
+            const period = normalizePeriod(appState.days[dayIndex][periodKey]);
+            if (period.items.length < 2) {
+                const defaultTime = periodKey === 'morning' ? '10.30-12.00' : '15.00-16.30';
+                period.items.push({
+                    time: defaultTime,
+                    icon: "meeting",
+                    activity: "ประชุม / กิจกรรมเพิ่มเติม",
+                    location: "รพ.พยุหะคีรี"
+                });
+                appState.days[dayIndex][periodKey] = period;
+                saveState();
+                renderActiveDayForm();
+                requestRender();
+                showToast('เพิ่มงานที่ 2 เรียบร้อยแล้ว', '➕');
+            }
+        }
+
+        function removePeriodItem(dayIndex, periodKey, itemIndex) {
+            const period = normalizePeriod(appState.days[dayIndex][periodKey]);
+            if (period.items.length > 1) {
+                period.items.splice(itemIndex, 1);
+                appState.days[dayIndex][periodKey] = period;
+                saveState();
+                renderActiveDayForm();
+                requestRender();
+                showToast('ลบงานที่ 2 เรียบร้อยแล้ว', '🗑️');
+            }
+        }
+
+        function updateItemField(dayIndex, periodKey, itemIndex, field, value) {
+            const period = normalizePeriod(appState.days[dayIndex][periodKey]);
+            if (period.items[itemIndex]) {
+                period.items[itemIndex][field] = value;
+                if (itemIndex === 0) {
+                    period[field] = value;
+                }
+            }
+            appState.days[dayIndex][periodKey] = period;
+            saveState();
+            requestRender();
         }
 
         // ==================== EVENT HANDLERS ====================
@@ -1215,14 +1628,6 @@
             showToast(`เปลี่ยนฟอนต์เป็น "${fontName}" เรียบร้อย`, '🔤');
         }
 
-        function changeFontWeight(weight) {
-            appState.fontWeight = weight;
-            saveState();
-            requestRender();
-            const labelMap = { 'normal': 'ปกติ', 'bold': 'หนาเข้ม', 'extra-bold': 'หนาพิเศษ-อ้วนเข้ม' };
-            showToast(`ปรับความหนาเป็น "${labelMap[weight] || weight}" เรียบร้อย`, '💪');
-        }
-
         function toggleDayMode(dayIndex, mode) {
             appState.days[dayIndex].mode = mode;
             saveState();
@@ -1237,7 +1642,12 @@
         }
 
         function updatePeriodField(dayIndex, period, field, value) {
-            appState.days[dayIndex][period][field] = value;
+            const p = normalizePeriod(appState.days[dayIndex][period]);
+            p[field] = value;
+            if (p.items && p.items[0]) {
+                p.items[0][field] = value;
+            }
+            appState.days[dayIndex][period] = p;
             saveState();
             requestRender();
         }
@@ -1280,6 +1690,9 @@
         function resetToDefault() {
             if (confirm('คุณต้องการรีเซ็ตข้อมูลทั้งหมดกลับเป็นค่าเริ่มต้นใช่หรือไม่?')) {
                 appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                if (appState && Array.isArray(appState.days)) {
+                    appState.days.forEach(normalizeDay);
+                }
                 saveState();
                 renderEditor();
                 requestRender();
@@ -1287,13 +1700,22 @@
             }
         }
 
-        // ==================== TEMPLATE SYSTEM (LocalStorage) ====================
+        // ==================== TEMPLATE SYSTEM (Firebase Cloud & LocalStorage) ====================
+        const FIRESTORE_COLLECTION = 'templates';
+
         function getStoredTemplates() {
             try { return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '[]'); } catch (e) { return []; }
         }
 
+        function setStoredTemplates(templates) {
+            localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
+            updateTemplateCountBadge();
+        }
+
         function updateTemplateCountBadge() {
-            document.getElementById('tpl-count-badge').textContent = getStoredTemplates().length;
+            const count = getStoredTemplates().length;
+            const badge = document.getElementById('tpl-count-badge');
+            if (badge) badge.textContent = count;
         }
 
         function openSaveModal() {
@@ -1309,13 +1731,15 @@
         function openLoadModal() {
             renderTemplateList();
             document.getElementById('loadModal').classList.remove('hidden');
+            syncTemplatesFromCloud(false);
         }
 
         function closeLoadModal() {
             document.getElementById('loadModal').classList.add('hidden');
         }
 
-        function confirmSaveTemplate() {
+        // บันทึกเทมเพลตลง Firebase Cloud และ LocalStorage
+        async function confirmSaveTemplate() {
             const name = document.getElementById('tplNameInput').value.trim();
             const note = document.getElementById('tplNoteInput').value.trim();
             if (!name) {
@@ -1323,26 +1747,237 @@
                 return;
             }
 
-            const templates = getStoredTemplates();
-            templates.unshift({
-                id: Date.now().toString(),
-                name,
-                note,
-                savedAt: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                data: JSON.parse(JSON.stringify(appState))
+            const docId = 'tpl_' + Date.now();
+            const nowIso = new Date().toISOString();
+            const nowDisplay = new Date().toLocaleDateString('th-TH', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
             });
 
-            localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
-            updateTemplateCountBadge();
+            const newTpl = {
+                id: docId,
+                name: name,
+                note: note,
+                savedAt: nowDisplay,
+                createdAt: nowIso,
+                data: JSON.parse(JSON.stringify(appState))
+            };
+
+            // 1. บันทึกลง LocalStorage ทันที (Fast UI)
+            const templates = getStoredTemplates();
+            // ลบตัวซ้ำถ้ามีชื่อเดียวกัน
+            const filtered = templates.filter(t => t.id !== docId && t.name !== name);
+            filtered.unshift(newTpl);
+            setStoredTemplates(filtered);
             closeSaveModal();
-            showToast(`บันทึกเทมเพลต "${name}" เรียบร้อย!`, '💾');
+            renderTemplateList();
+            showToast(`บันทึกเทมเพลต "${name}" เรียบร้อย (กำลังซิงค์ขึ้น Cloud...)`, '☁️');
+
+            // 2. บันทึกขึ้น Firebase Cloud
+            try {
+                await saveTemplateToCloud(newTpl);
+                showToast(`บันทึกขึ้น Firebase Cloud สำเร็จ!`, '✅');
+                syncTemplatesFromCloud(false);
+            } catch (err) {
+                console.error('Save to Cloud failed:', err);
+                showToast(`บันทึกในเครื่องแล้ว (คลาวด์ขัดข้อง: ${err.message || 'offline'})`, '⚠️');
+            }
+        }
+
+        async function saveTemplateToCloud(tpl) {
+            let cloudError = null;
+
+            // วิธีที่ 1: ใช้ Firebase JS SDK ถ้าพร้อม
+            if (isFirebaseReady && db) {
+                try {
+                    await db.collection(FIRESTORE_COLLECTION).doc(tpl.id).set(tpl);
+                    console.log('Saved via Firebase SDK successfully');
+                    return;
+                } catch(e) {
+                    console.warn('Firebase SDK write failed, trying REST API:', e);
+                    cloudError = e;
+                }
+            }
+
+            // วิธีที่ 2: Fallback ผ่าน Firestore REST API
+            try {
+                const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${FIRESTORE_COLLECTION}/${tpl.id}?key=${firebaseConfig.apiKey}`;
+                const body = {
+                    fields: {
+                        id: { stringValue: tpl.id },
+                        name: { stringValue: tpl.name || '' },
+                        note: { stringValue: tpl.note || '' },
+                        savedAt: { stringValue: tpl.savedAt || '' },
+                        createdAt: { stringValue: tpl.createdAt || new Date().toISOString() },
+                        dataJson: { stringValue: JSON.stringify(tpl.data) }
+                    }
+                };
+                const res = await fetch(url, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`HTTP ${res.status}: ${errText}`);
+                }
+                console.log('Saved via Firestore REST API successfully');
+                return;
+            } catch(e) {
+                console.error('REST API write failed:', e);
+                throw (cloudError || e);
+            }
+        }
+
+        // ดึงรายการเทมเพลตจาก Firebase Cloud
+        async function syncTemplatesFromCloud(isManual = false) {
+            const syncIcon = document.getElementById('sync-icon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            const statusEl = document.getElementById('cloud-last-sync-time');
+            if (statusEl) statusEl.textContent = 'กำลังซิงค์กับ Cloud...';
+
+            let cloudList = [];
+            let syncSuccess = false;
+            let syncErrorMsg = '';
+
+            // พยายามวิธีที่ 1: Firebase SDK
+            if (isFirebaseReady && db) {
+                try {
+                    const snap = await db.collection(FIRESTORE_COLLECTION).get();
+                    cloudList = snap.docs.map(doc => {
+                        const data = doc.data();
+                        return { ...data, id: doc.id };
+                    });
+                    syncSuccess = true;
+                } catch(e) {
+                    console.warn('Firebase SDK read failed, trying REST:', e);
+                    syncErrorMsg = e.message;
+                }
+            }
+
+            // พยายามวิธีที่ 2: REST API (ถ้า SDK ล้มเหลวหรือไม่พร้อม)
+            if (!syncSuccess) {
+                try {
+                    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${FIRESTORE_COLLECTION}?key=${firebaseConfig.apiKey}`;
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json.documents && Array.isArray(json.documents)) {
+                            cloudList = json.documents.map(doc => {
+                                const f = doc.fields || {};
+                                const docId = doc.name.split('/').pop();
+                                let dataObj = null;
+                                if (f.dataJson && f.dataJson.stringValue) {
+                                    try { dataObj = JSON.parse(f.dataJson.stringValue); } catch(e) {}
+                                } else if (f.data && f.data.stringValue) {
+                                    try { dataObj = JSON.parse(f.data.stringValue); } catch(e) {}
+                                }
+                                return {
+                                    id: f.id ? f.id.stringValue : docId,
+                                    name: f.name ? f.name.stringValue : 'ไม่มีชื่อ',
+                                    note: f.note ? f.note.stringValue : '',
+                                    savedAt: f.savedAt ? f.savedAt.stringValue : '',
+                                    createdAt: f.createdAt ? f.createdAt.stringValue : '',
+                                    data: dataObj
+                                };
+                            });
+                        }
+                        syncSuccess = true;
+                    } else {
+                        const errText = await res.text();
+                        syncErrorMsg = `HTTP ${res.status}: ${errText}`;
+                    }
+                } catch(e) {
+                    syncErrorMsg = e.message;
+                }
+            }
+
+            const localList = getStoredTemplates();
+
+            if (syncSuccess) {
+                // รวม Local กับ Cloud
+                const mergedMap = new Map();
+                for (const localTpl of localList) {
+                    mergedMap.set(localTpl.id || localTpl.name, localTpl);
+                }
+                for (const cloudTpl of cloudList) {
+                    mergedMap.set(cloudTpl.id || cloudTpl.name, cloudTpl);
+                }
+
+                const merged = Array.from(mergedMap.values());
+                merged.sort((a, b) => {
+                    const timeA = new Date(a.createdAt || 0).getTime();
+                    const timeB = new Date(b.createdAt || 0).getTime();
+                    return timeB - timeA;
+                });
+
+                setStoredTemplates(merged);
+                renderTemplateList();
+
+                // ซิงค์ของเก่าที่ค้างใน Local ขึ้น Cloud ให้ครบ
+                syncLocalOnlyToCloud(localList, cloudList);
+
+                if (statusEl) {
+                    const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                    statusEl.textContent = `ซิงค์สำเร็จล่าสุดเวลา ${now} น. (พบบนคลาวด์ ${cloudList.length} รายการ)`;
+                }
+                const ind = document.getElementById('cloud-status-indicator');
+                if (ind) {
+                    ind.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                    ind.title = 'Firebase Cloud เชื่อมต่อสำเร็จ';
+                }
+
+                if (isManual) {
+                    showToast(`ซิงค์ข้อมูลกับ Firebase Cloud สำเร็จ (${cloudList.length} รายการ)`, '☁️');
+                }
+            } else {
+                console.warn('Sync failed:', syncErrorMsg);
+                renderTemplateList(); // ยังคงแสดงรายการในเครื่อง
+                if (statusEl) {
+                    statusEl.textContent = `ออฟไลน์/เชื่อม Cloud ไม่สำเร็จ (${syncErrorMsg || 'ตรวจสอบเน็ต'})`;
+                }
+                const ind = document.getElementById('cloud-status-indicator');
+                if (ind) {
+                    ind.className = 'w-2 h-2 rounded-full bg-amber-500';
+                    ind.title = 'ออฟไลน์ / ใช้ข้อมูลในเครื่อง';
+                }
+                if (isManual) {
+                    showToast(`เชื่อม Cloud ไม่สำเร็จ: ${syncErrorMsg || 'ออฟไลน์'}`, '⚠️');
+                }
+            }
+
+            if (syncIcon) syncIcon.classList.remove('animate-spin');
+        }
+
+        // ซิงค์เทมเพลตที่อยู่ในเครื่องขึ้น Cloud หากยังไม่เคยมีบน Cloud
+        async function syncLocalOnlyToCloud(localList, cloudList) {
+            const cloudIds = new Set(cloudList.map(c => c.id));
+            for (const item of localList) {
+                if (!item.id) item.id = 'tpl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                if (!cloudIds.has(item.id)) {
+                    try {
+                        await saveTemplateToCloud(item);
+                        cloudIds.add(item.id);
+                    } catch(e) {
+                        console.warn('Auto upload local item to cloud failed:', e);
+                    }
+                }
+            }
         }
 
         function renderTemplateList() {
             const container = document.getElementById('tplListContainer');
             const templates = getStoredTemplates();
             if (!templates.length) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm"><p>ยังไม่มีเทมเพลตที่บันทึกไว้</p><p class="text-xs text-slate-400 mt-1">สามารถกด "บันทึกเทมเพลต..." เพื่อเพิ่มรายการแรก</p></div>`;
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-400 text-sm space-y-1">
+                        <p>ยังไม่มีเทมเพลตที่บันทึกไว้</p>
+                        <p class="text-xs text-slate-400">เมื่อบันทึกแล้ว จะซิงค์ขึ้น Firebase Cloud ให้ทันที</p>
+                    </div>`;
                 return;
             }
 
@@ -1350,12 +1985,12 @@
                 <div class="p-3 bg-slate-50 hover:bg-amber-50/60 rounded-xl border border-slate-200 transition flex items-center justify-between gap-3">
                     <div class="space-y-0.5 overflow-hidden">
                         <div class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="ซิงค์บน Cloud"></span>
                             <span class="truncate">${escapeHtml(tpl.name)}</span>
                         </div>
-                        <div class="text-xs text-slate-500 truncate">${escapeHtml(tpl.data.header1)}</div>
+                        <div class="text-xs text-slate-500 truncate">${tpl.data ? escapeHtml(tpl.data.header1 || '') : ''}</div>
                         <div class="text-[11px] text-slate-400 flex items-center gap-2">
-                            <span>🕒 ${tpl.savedAt}</span>
+                            <span>🕒 ${tpl.savedAt || ''}</span>
                             ${tpl.note ? `<span class="italic text-amber-800 font-medium">"${escapeHtml(tpl.note)}"</span>` : ''}
                         </div>
                     </div>
@@ -1370,9 +2005,15 @@
         function loadTemplate(id) {
             const templates = getStoredTemplates();
             const target = templates.find(t => t.id === id);
-            if (!target) return;
+            if (!target || !target.data) {
+                showToast('ไม่พบข้อมูลเทมเพลตนี้', '❌');
+                return;
+            }
 
             appState = JSON.parse(JSON.stringify(target.data));
+            if (appState && Array.isArray(appState.days)) {
+                appState.days.forEach(normalizeDay);
+            }
             saveState();
             renderEditor();
             requestRender();
@@ -1380,16 +2021,62 @@
             showToast(`โหลดเทมเพลต "${target.name}" เรียบร้อยแล้ว`, '📂');
         }
 
-        function deleteTemplate(id) {
-            if (confirm('คุณต้องการลบเทมเพลตนี้ใช่หรือไม่?')) {
-                const templates = getStoredTemplates().filter(t => t.id !== id);
-                localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
-                updateTemplateCountBadge();
+        async function deleteTemplate(id) {
+            if (confirm('คุณต้องการลบเทมเพลตนี้จาก Cloud และเครื่องใช่หรือไม่?')) {
+                // 1. ลบจาก Local ทันที
+                let templates = getStoredTemplates().filter(t => t.id !== id);
+                setStoredTemplates(templates);
                 renderTemplateList();
+
+                // 2. ลบจาก Firebase Cloud
+                try {
+                    if (isFirebaseReady && db) {
+                        await db.collection(FIRESTORE_COLLECTION).doc(id).delete();
+                    } else {
+                        const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${FIRESTORE_COLLECTION}/${id}?key=${firebaseConfig.apiKey}`;
+                        await fetch(url, { method: 'DELETE' });
+                    }
+                    showToast('ลบเทมเพลตออกจาก Cloud เรียบร้อย', '🗑️');
+                } catch(e) {
+                    console.warn('Delete cloud failed:', e);
+                }
             }
         }
 
-        // ==================== FAST EXPORT POSTER (PNG / JPG) ====================
+        // ==================== FAST EXPORT & CLIPBOARD SYSTEM ====================
+        async function copyPosterToClipboard() {
+            try {
+                await document.fonts.ready;
+                drawPosterCanvas();
+
+                const canvas = document.getElementById('poster-canvas');
+                if (!canvas) return;
+
+                if (!navigator.clipboard || !window.ClipboardItem) {
+                    showToast('บราวเซอร์นี้ยังไม่รองรับการคัดลอกรูปลงคลิปบอร์ดโดยตรง กรุณาใช้ปุ่มเซฟรูปแทน', '⚠️');
+                    return;
+                }
+
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        showToast('ไม่สามารถสร้างข้อมูลภาพได้', '❌');
+                        return;
+                    }
+                    try {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        await navigator.clipboard.write([item]);
+                        showToast('คัดลอกรูปสำเร็จ! สามารถกด Ctrl+V แปะลง LINE ได้ทันที', '📋');
+                    } catch (err) {
+                        console.error('Clipboard write error:', err);
+                        showToast('ไม่สามารถคัดลอกลงคลิปบอร์ดได้ กรุณาใช้ปุ่มดาวน์โหลดแทน', '⚠️');
+                    }
+                }, 'image/png', 1.0);
+            } catch (err) {
+                console.error(err);
+                showToast('เกิดข้อผิดพลาดในการคัดลอกภาพ', '❌');
+            }
+        }
+
         async function exportPoster(format = 'png') {
             try {
                 await document.fonts.ready;
@@ -1430,6 +2117,9 @@
         window.addEventListener('DOMContentLoaded', async () => {
             renderEditor();
             requestRender();
+
+            // ซิงค์เทมเพลตจาก Firebase Cloud ตั้งแต่ตอนเปิดเว็บ
+            syncTemplatesFromCloud(false);
 
             if (document.fonts && document.fonts.ready) {
                 try {
