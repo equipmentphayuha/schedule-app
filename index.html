@@ -22,7 +22,8 @@
         }
         body {
             font-family: var(--font-family-fallback);
-            background-color: #f1f5f9;
+            background: linear-gradient(135deg, #fdf8f3 0%, #f4ece3 50%, #edf1f7 100%);
+            background-attachment: fixed;
         }
 
         /* บังคับโหลดฟอนต์ล่วงหน้าใน DOM */
@@ -66,9 +67,18 @@
         }
 
         .tab-btn.active {
-            background-color: #ea580c;
+            background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
             color: #ffffff;
-            box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.3);
+            box-shadow: 0 6px 14px -3px rgba(234, 88, 12, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Warm Studio Card Elevation */
+        #editor-section > div {
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-color: rgba(180, 140, 100, 0.18);
+            box-shadow: 0 8px 28px -6px rgba(123, 88, 59, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
         }
     </style>
 </head>
@@ -81,7 +91,7 @@
     </div>
 
     <!-- Top Navbar -->
-    <header class="bg-white border-b border-slate-200 px-4 py-2.5 sticky top-0 z-30 shadow-sm">
+    <header class="bg-white/80 backdrop-blur-md border-b border-amber-900/10 px-4 py-2.5 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
             <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-sm">
@@ -90,12 +100,20 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="font-semibold text-slate-800 text-base leading-tight">ระบบสร้างภาพตารางปฏิบัติการ</h1>
-                    <p class="text-xs text-slate-500">Pure Canvas Engine • สระวรรณยุกต์คมชัด 100% ตรงพรีวิวเป๊ะ</p>
+                    <h1 class="font-semibold text-slate-800 text-sm sm:text-base leading-tight">ระบบสร้างภาพตารางปฏิบัติการ</h1>
+                    <p class="hidden sm:block text-xs text-slate-500">Pure Canvas Engine • สระวรรณยุกต์คมชัด 100% ตรงพรีวิวเป๊ะ</p>
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <!-- ปุ่มเปิด/ปิดเมนูบนมือถือ -->
+            <button type="button" onclick="toggleMobileNavbar()" class="md:hidden px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                <span>เมนู</span>
+            </button>
+
+            <div id="navbar-actions" class="hidden md:flex w-full md:w-auto flex-wrap items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
                 <!-- Save Template Modal Button -->
                 <button onclick="openSaveModal()" class="px-3 py-1.5 text-xs font-medium text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,6 +131,15 @@
                     <span id="cloud-status-indicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Firebase Cloud ออนไลน์"></span>
                 </button>
 
+                <!-- Weekly History Modal Button -->
+                <button onclick="openWeeklyHistoryModal()" class="px-3 py-1.5 text-xs font-medium text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition flex items-center gap-1.5" title="ดูประวัติงานรายสัปดาห์ที่บันทึกอัตโนมัติบน Firebase Cloud">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>ประวัติรายสัปดาห์ (<span id="weekly-count-badge">0</span>)</span>
+                    <span id="weekly-sync-dot" class="w-2 h-2 rounded-full bg-emerald-500" title="Auto-save ออนไลน์"></span>
+                </button>
+
                 <!-- Reset Button -->
                 <button onclick="resetToDefault()" class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 rounded-xl transition flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,6 +147,8 @@
                     </svg>
                     <span>รีเซ็ต</span>
                 </button>
+
+                <span class="hidden md:inline-block w-px h-5 bg-slate-200 mx-0.5"></span>
 
                 <!-- Export JPG -->
                 <button onclick="exportPoster('jpg')" class="px-3.5 py-1.5 text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 active:scale-95 rounded-xl shadow-sm transition flex items-center gap-1">
@@ -135,6 +164,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
                     </svg>
                     <span>คัดลอกรูป (Ctrl+V ใน LINE)</span>
+                </button>
+
+                <!-- Share Poster (สำหรับมือถือ/แท็บเล็ต ส่งเข้า LINE โดยตรง) -->
+                <button onclick="sharePoster()" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 active:scale-95 rounded-xl shadow-sm transition flex items-center gap-1.5" title="แชร์รูปภาพเข้า LINE หรือแอปอื่นบนมือถือได้ทันที">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                    <span>แชร์รูป (LINE)</span>
                 </button>
 
                 <!-- Export PNG -->
@@ -160,7 +197,7 @@
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         <!-- ฝั่งซ้าย: แผงควบคุมแก้ไขข้อมูล (Editor Panel) -->
-        <section class="lg:col-span-6 space-y-4 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:pr-2 pb-8">
+        <section id="editor-section" class="lg:col-span-6 space-y-4 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:pr-2 pb-20 lg:pb-8">
             
             <!-- กล่องที่ 1: เลือกสัปดาห์ & วันที่อัตโนมัติ (ช่วยลดเวลาพิมพ์) -->
             <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-3">
@@ -190,11 +227,16 @@
                             </button>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-150">
+                    <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-150">
                         <span>ช่วงวันที่คำนวณได้: <strong id="week-range-preview" class="text-indigo-800 font-semibold">-</strong></span>
-                        <button type="button" onclick="applyWeekDatesToAllDays(true)" class="text-indigo-600 hover:text-indigo-800 font-semibold underline" title="เขียนทับชื่อวันและหัวข้อวันที่ทั้งหมดตามสัปดาห์นี้">
-                            🔄 ซิงค์วันที่ลงตารางทันที
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="copyFromPreviousWeek()" class="text-emerald-700 hover:text-emerald-900 font-semibold underline" title="ดึงรายการงานจากสัปดาห์ที่แล้วมาใส่สัปดาห์นี้ (คงวันที่ปัจจุบันไว้)">
+                                📋 คัดลอกงานสัปดาห์ก่อน
+                            </button>
+                            <button type="button" onclick="applyWeekDatesToAllDays(true)" class="text-indigo-600 hover:text-indigo-800 font-semibold underline" title="เขียนทับชื่อวันและหัวข้อวันที่ทั้งหมดตามสัปดาห์นี้">
+                                🔄 ซิงค์วันที่ลงตารางทันที
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -381,7 +423,7 @@
         </section>
 
         <!-- ฝั่งขวา: พื้นที่แสดงตัวอย่างภาพจริงบน HTML5 Canvas (100% WYSIWYG) -->
-        <section class="lg:col-span-6 lg:sticky lg:top-16 flex flex-col items-center">
+        <section id="preview-section" class="lg:col-span-6 lg:sticky lg:top-16 hidden lg:flex flex-col items-center pb-20 lg:pb-0">
             <div class="w-full max-w-[520px] flex items-center justify-between mb-2 px-1">
                 <span class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -403,6 +445,12 @@
         </section>
 
     </main>
+
+    <!-- ปุ่มลอยสลับโหมด แก้ไข / พรีวิว บนมือถือและแท็บเล็ต -->
+    <button id="mobile-toggle-btn" onclick="toggleMobileView()" class="fixed bottom-5 right-5 z-40 lg:hidden px-4 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold text-sm shadow-xl flex items-center gap-2 transition">
+        <span id="mobile-toggle-icon">👁️</span>
+        <span id="mobile-toggle-label">ดูพรีวิว</span>
+    </button>
 
     <!-- Modal 1: บันทึกเทมเพลตใหม่ -->
     <div id="saveModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -460,6 +508,39 @@
             <div class="flex justify-between items-center pt-2 border-t text-xs text-slate-500">
                 <span id="cloud-last-sync-time">ซิงค์อัตโนมัติกับทุกเครื่อง</span>
                 <button onclick="closeLoadModal()" class="px-4 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: ประวัติรายสัปดาห์ (Weekly History - Auto-save Cloud) -->
+    <div id="weeklyHistoryModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div>
+                    <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                        <span>🕒 ประวัติงานรายสัปดาห์</span>
+                        <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Auto-save Cloud
+                        </span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5">บันทึกอัตโนมัติทุกครั้งที่พิมพ์ เปิดแก้ไขต่อได้จากทุกเครื่อง</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="syncWeeklyHistoryFromCloud(true)" class="px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition flex items-center gap-1" title="ดึงข้อมูลล่าสุดจาก Firebase Cloud">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>ซิงค์</span>
+                    </button>
+                    <button onclick="closeWeeklyHistoryModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+                </div>
+            </div>
+            <div id="weeklyHistoryListContainer" class="max-h-[380px] overflow-y-auto space-y-2 pr-1">
+                <!-- แสดงรายการประวัติรายสัปดาห์โดย JS -->
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t text-xs text-slate-500">
+                <span id="weekly-last-sync-time">บันทึกอัตโนมัติเมื่อมีการแก้ไข</span>
+                <button onclick="closeWeeklyHistoryModal()" class="px-4 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl">ปิดหน้าต่าง</button>
             </div>
         </div>
     </div>
@@ -793,6 +874,9 @@
 
         function saveState() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            if (typeof saveWeeklyHistoryAuto === 'function') {
+                saveWeeklyHistoryAuto();
+            }
         }
 
         // Debounced Render เพื่อให้การพิมพ์ลื่นไหลระดับ 60 FPS
@@ -984,10 +1068,21 @@
                     ctx.fillText(day.singleText, W / 2, contentTop + (contentHeight / 2));
                     ctx.restore();
                 } else {
-                    // โหมด 2 ช่วงเวลา (เช้า - บ่าย)
-                    const midY = contentTop + (contentHeight / 2);
+                    // โหมดช่วงเวลา (เช้า - บ่าย) ปรับขนาดช่องตามจำนวนงานที่แท้จริง
+                    const morningPeriod = normalizePeriod(day.morning);
+                    const afternoonPeriod = normalizePeriod(day.afternoon);
+                    const morningCount = Math.max(1, (morningPeriod.items && morningPeriod.items.length) || 1);
+                    const afternoonCount = Math.max(1, (afternoonPeriod.items && afternoonPeriod.items.length) || 1);
+                    const totalSlots = morningCount + afternoonCount;
 
-                    // เส้นคั่นกึ่งกลาง
+                    // สัดส่วนความสูงตามจำนวนงาน (เช่น เช้า 2 บ่าย 1 จะแบ่ง 2:1 ทำให้ทุกงานมีช่องขนาดเท่ากัน ไม่เบียด)
+                    const period1H = contentHeight * (morningCount / totalSlots);
+                    const period2H = contentHeight * (afternoonCount / totalSlots);
+                    const period1Top = contentTop;
+                    const period2Top = contentTop + period1H;
+                    const midY = period2Top;
+
+                    // เส้นคั่นระหว่างช่วงเช้าและบ่าย
                     ctx.save();
                     ctx.strokeStyle = '#D5D0C5';
                     ctx.lineWidth = numDays > 5 ? 1.8 : 2.5;
@@ -997,19 +1092,13 @@
                     ctx.stroke();
                     ctx.restore();
 
-                    // แถวเช้าและแถวบ่าย
-                    const period1Top = contentTop;
-                    const period1H = contentHeight * 0.5;
-                    const period2Top = midY;
-                    const period2H = contentHeight * 0.5;
-
                     drawSchedulePeriod(ctx, cardX, cardW, period1Top, period1H, day.morning, currentFont, scaleRatio);
                     drawSchedulePeriod(ctx, cardX, cardW, period2Top, period2H, day.afternoon, currentFont, scaleRatio);
                 }
             });
         }
 
-        // วาดช่วงเวลา (รองรับ 1 หรือ 2 งานต่อช่วง พร้อมปรับขนาดตามจำนวนวัน)
+        // วาดช่วงเวลา (รองรับ 1 หรือ 2 งานต่อช่วง พร้อมกระจายตำแหน่งและขนาดช่องให้เท่ากันสมดุล)
         function drawSchedulePeriod(ctx, cardX, cardW, topY, height, period, fontName, scaleRatio = 1.0) {
             const normPeriod = normalizePeriod(period);
             const items = normPeriod.items && normPeriod.items.length > 0 ? normPeriod.items : [normPeriod];
@@ -1021,18 +1110,19 @@
                 const iconSize = Math.round(44 * scaleRatio);
                 drawSingleScheduleItem(ctx, cardX, cardW, centerY, items[0], fontSize, iconSize, fontName);
             } else {
-                // 2 งาน: แบ่งเป็น 2 แถวย่อยอย่างสวยงามพอดีช่อง
-                const row1Y = topY + (height * 0.28);
-                const row2Y = topY + (height * 0.74);
+                // 2 งาน: แบ่งช่องย่อยออกเป็น 2 ช่องเท่าๆ กัน (แต่ละช่องสูง height / 2)
+                const slotH = height / 2;
+                const row1Y = topY + (slotH * 0.5);
+                const row2Y = topY + slotH + (slotH * 0.5);
 
-                // เส้นคั่นประจุดเบาๆ ระหว่างงานที่ 1 กับงานที่ 2
+                // เส้นคั่นประจุดเบาๆ ระหว่างงานที่ 1 กับงานที่ 2 อยู่กึ่งกลางพอดี
                 ctx.save();
                 ctx.strokeStyle = '#E2DDD2';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([6, 6]);
                 ctx.beginPath();
-                ctx.moveTo(cardX + 60, topY + (height * 0.51));
-                ctx.lineTo(cardX + cardW - 60, topY + (height * 0.51));
+                ctx.moveTo(cardX + 60, topY + slotH);
+                ctx.lineTo(cardX + cardW - 60, topY + slotH);
                 ctx.stroke();
                 ctx.restore();
 
@@ -1065,37 +1155,132 @@
             const col3TextX = col3IconX + (iconSize > 38 ? 52 : 42);
             const col3MaxW = 310;
 
-            // 1. เวลา
+            // 1. เวลา (ใช้บรรทัดเดียวเสมอ)
             drawVectorIcon(ctx, 'clock', col1IconX, centerY, iconSize);
-            drawFittedText(ctx, item.time, col1TextX, centerY, col1MaxW, defaultFontSize, fontName);
+            drawFittedText(ctx, item.time, col1TextX, centerY, col1MaxW, defaultFontSize, fontName, 1);
 
-            // 2. กิจกรรม
+            // 2. กิจกรรม (ถ้าข้อความยาวเกิน ตัดเป็น 2 บรรทัดอัตโนมัติ)
             if (item.icon && item.icon !== 'none') {
                 drawVectorIcon(ctx, item.icon, col2IconX, centerY, iconSize + 4);
-                drawFittedText(ctx, item.activity, col2TextX, centerY, col2MaxW, defaultFontSize, fontName);
+                drawFittedText(ctx, item.activity, col2TextX, centerY, col2MaxW, defaultFontSize, fontName, 2);
             } else {
-                drawFittedText(ctx, item.activity, col2IconX, centerY, col2MaxW + 66, defaultFontSize, fontName);
+                drawFittedText(ctx, item.activity, col2IconX, centerY, col2MaxW + 66, defaultFontSize, fontName, 2);
             }
 
-            // 3. สถานที่
+            // 3. สถานที่ (ถ้าข้อความยาวเกิน ตัดเป็น 2 บรรทัดอัตโนมัติ)
             if (item.location && item.location.trim() !== '') {
                 drawVectorIcon(ctx, 'pin', col3IconX, centerY, iconSize);
-                drawFittedText(ctx, item.location, col3TextX, centerY, col3MaxW, defaultFontSize, fontName);
+                drawFittedText(ctx, item.location, col3TextX, centerY, col3MaxW, defaultFontSize, fontName, 2);
             }
 
             ctx.restore();
         }
 
-        function drawFittedText(ctx, text, x, y, maxWidth, defaultSize, fontName) {
+        function drawFittedText(ctx, text, x, y, maxWidth, defaultSize, fontName, maxLines = 2) {
             if (!text) return;
-            let fontSize = defaultSize;
+            text = String(text).trim();
+            if (!text) return;
+
             const fontStack = `"${fontName}", "TH Sarabun New", "Sarabun", "Leelawadee UI", "Tahoma", sans-serif`;
+
+            // กรณีมี \n ให้ใช้บรรทัดตามที่ตัดไว้ล่วงหน้า
+            if (text.includes('\n')) {
+                const manualLines = text.split('\n').filter(l => l.trim() !== '');
+                drawMultiLines(ctx, manualLines, x, y, maxWidth, defaultSize, fontStack);
+                return;
+            }
+
+            // วัดข้อความใน 1 บรรทัดด้วยขนาดตั้งต้น
+            ctx.font = `400 ${defaultSize}px ${fontStack}`;
+            const singleLineWidth = ctx.measureText(text).width;
+
+            // ถ้าพอดีใน 1 บรรทัด (หรืออนุญาตแค่ 1 บรรทัด เช่น เวลา)
+            if (singleLineWidth <= maxWidth || maxLines <= 1) {
+                let fontSize = defaultSize;
+                while (ctx.measureText(text).width > maxWidth && fontSize > 18) {
+                    fontSize -= 1;
+                    ctx.font = `400 ${fontSize}px ${fontStack}`;
+                }
+                ctx.fillText(text, x, y + 2);
+                return;
+            }
+
+            // ถ้าข้อความยาวเกินช่อง ให้ตัดคำเป็น 2 บรรทัด
+            const lines = splitTextIntoLines(ctx, text, maxWidth, defaultSize, fontStack);
+            if (lines.length > 1) {
+                drawMultiLines(ctx, lines, x, y, maxWidth, defaultSize, fontStack);
+            } else {
+                // ถ้าตัดคำไม่ได้ (เช่น คำเดียวยาวมาก) ย่อฟอนต์ลงใน 1 บรรทัด
+                let fontSize = defaultSize;
+                while (ctx.measureText(text).width > maxWidth && fontSize > 18) {
+                    fontSize -= 1;
+                    ctx.font = `400 ${fontSize}px ${fontStack}`;
+                }
+                ctx.fillText(text, x, y + 2);
+            }
+        }
+
+        // ตัวช่วยตัดข้อความภาษาไทย/อังกฤษออกเป็น 2 บรรทัดอย่างเป็นธรรมชาติ
+        function splitTextIntoLines(ctx, text, maxWidth, baseFontSize, fontStack) {
+            // ใช้ Intl.Segmenter สำหรับตัดคำภาษาไทยได้อย่างถูกต้อง
+            let words = [];
+            if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+                const segmenter = new Intl.Segmenter('th', { granularity: 'word' });
+                words = Array.from(segmenter.segment(text), s => s.segment);
+            } else {
+                words = text.split(/(\s+|\/|-)/);
+            }
+
+            // หาจุดแบ่งเป็น 2 บรรทัดที่สมดุลที่สุด
+            let bestSplitIndex = -1;
+            let minDiff = Infinity;
+            let totalLen = text.length;
+            let currLen = 0;
+
+            for (let i = 0; i < words.length - 1; i++) {
+                currLen += words[i].length;
+                // ต้องการจุดแบ่งที่ใกล้เคียงครึ่งหนึ่งของข้อความ (50:50)
+                const diff = Math.abs((totalLen / 2) - currLen);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    bestSplitIndex = i;
+                }
+            }
+
+            if (bestSplitIndex !== -1) {
+                const line1 = words.slice(0, bestSplitIndex + 1).join('').trim();
+                const line2 = words.slice(bestSplitIndex + 1).join('').trim();
+                if (line1 && line2) {
+                    return [line1, line2];
+                }
+            }
+
+            // สำรอง: หากตัดตามคำไม่ได้ ให้ตัดกึ่งกลางตามตัวอักษร
+            const mid = Math.floor(text.length / 2);
+            return [text.slice(0, mid).trim(), text.slice(mid).trim()];
+        }
+
+        // วาดข้อความ 2 บรรทัด โดยรักษาระยะกึ่งกลาง (centerY) และปรับขนาดฟอนต์ให้พอดี
+        function drawMultiLines(ctx, lines, x, centerY, maxWidth, baseFontSize, fontStack) {
+            // ปรับขนาดฟอนต์ของ 2 บรรทัดให้อ่านง่ายและไม่เบียด
+            let fontSize = Math.round(baseFontSize * 0.82);
             ctx.font = `400 ${fontSize}px ${fontStack}`;
-            while (ctx.measureText(text).width > maxWidth && fontSize > 18) {
+
+            // ตรวจสอบว่ามีบรรทัดไหนยังเกินความกว้างหรือไม่ ถ้าย่อลงอีกนิด
+            let longestWidth = Math.max(...lines.map(l => ctx.measureText(l).width));
+            while (longestWidth > maxWidth && fontSize > 16) {
                 fontSize -= 1;
                 ctx.font = `400 ${fontSize}px ${fontStack}`;
+                longestWidth = Math.max(...lines.map(l => ctx.measureText(l).width));
             }
-            ctx.fillText(text, x, y + 2);
+
+            const lineHeight = fontSize * 1.15;
+            const totalH = (lines.length - 1) * lineHeight;
+            const startY = centerY - (totalH / 2);
+
+            lines.forEach((line, idx) => {
+                ctx.fillText(line, x, startY + (idx * lineHeight) + 2);
+            });
         }
 
         function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -2113,13 +2298,362 @@
                 .replace(/'/g, "&#039;");
         }
 
+        // ==================== WEEKLY HISTORY SYSTEM (Auto-save to Firebase Cloud) ====================
+        const WEEKLY_HISTORY_KEY = 'phayuha_weekly_history_v1';
+        const WEEKLY_FIRESTORE_COLLECTION = 'weekly_schedules';
+        let weeklyCloudSaveTimer = null;
+
+        function getStoredWeeklyHistory() {
+            try {
+                const raw = JSON.parse(localStorage.getItem(WEEKLY_HISTORY_KEY) || '{}');
+                return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function setStoredWeeklyHistory(historyMap) {
+            localStorage.setItem(WEEKLY_HISTORY_KEY, JSON.stringify(historyMap));
+            updateWeeklyCountBadge();
+        }
+
+        function updateWeeklyCountBadge() {
+            const count = Object.keys(getStoredWeeklyHistory()).length;
+            const badge = document.getElementById('weekly-count-badge');
+            if (badge) badge.textContent = count;
+        }
+
+        function setWeeklySyncDot(status) {
+            const dot = document.getElementById('weekly-sync-dot');
+            if (!dot) return;
+            dot.className = 'w-2 h-2 rounded-full ' + (
+                status === 'saving' ? 'bg-amber-400 animate-ping' :
+                status === 'error' ? 'bg-rose-500' :
+                'bg-emerald-500'
+            );
+        }
+
+        function saveWeeklyHistoryAuto() {
+            const weekId = appState.weekStartDate || formatDateToISO(getCurrentReferenceMonday());
+            const nowIso = new Date().toISOString();
+            const nowDisplay = new Date().toLocaleDateString('th-TH', {
+                day: 'numeric', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            const entry = {
+                id: weekId,
+                weekStartDate: weekId,
+                header2: appState.header2 || weekId,
+                header3: appState.header3 || '',
+                savedAt: nowDisplay,
+                updatedAt: nowIso,
+                data: JSON.parse(JSON.stringify(appState))
+            };
+
+            // 1. บันทึกลง LocalStorage ทันที
+            const historyMap = getStoredWeeklyHistory();
+            historyMap[weekId] = entry;
+            setStoredWeeklyHistory(historyMap);
+
+            // 2. Debounce บันทึกขึ้น Firebase Cloud ทุก 1.5 วินาทีหลังหยุดพิมพ์
+            setWeeklySyncDot('saving');
+            if (weeklyCloudSaveTimer) clearTimeout(weeklyCloudSaveTimer);
+            weeklyCloudSaveTimer = setTimeout(async () => {
+                try {
+                    await saveWeeklyToCloud(entry);
+                    setWeeklySyncDot('ok');
+                    const el = document.getElementById('weekly-last-sync-time');
+                    if (el) el.textContent = `บันทึกล่าสุดบน Cloud: ${entry.savedAt}`;
+                } catch (err) {
+                    console.warn('Weekly auto-save to Cloud failed:', err);
+                    setWeeklySyncDot('error');
+                }
+            }, 1500);
+        }
+
+        async function saveWeeklyToCloud(entry) {
+            if (isFirebaseReady && db) {
+                try {
+                    await db.collection(WEEKLY_FIRESTORE_COLLECTION).doc(entry.id).set(entry);
+                    return;
+                } catch (e) {
+                    console.warn('Firebase SDK weekly write failed, trying REST API:', e);
+                }
+            }
+
+            const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${WEEKLY_FIRESTORE_COLLECTION}/${entry.id}?key=${firebaseConfig.apiKey}`;
+            const body = {
+                fields: {
+                    id: { stringValue: entry.id },
+                    weekStartDate: { stringValue: entry.weekStartDate },
+                    header2: { stringValue: entry.header2 || '' },
+                    header3: { stringValue: entry.header3 || '' },
+                    savedAt: { stringValue: entry.savedAt || '' },
+                    updatedAt: { stringValue: entry.updatedAt || '' },
+                    dataJson: { stringValue: JSON.stringify(entry.data) }
+                }
+            };
+            const res = await fetch(url, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`HTTP ${res.status}: ${errText}`);
+            }
+        }
+
+        async function syncWeeklyHistoryFromCloud(showToastMsg = false) {
+            try {
+                let cloudEntries = [];
+                if (isFirebaseReady && db) {
+                    const snap = await db.collection(WEEKLY_FIRESTORE_COLLECTION).get();
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        if (d && d.weekStartDate && d.data) cloudEntries.push(d);
+                    });
+                } else {
+                    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${WEEKLY_FIRESTORE_COLLECTION}?key=${firebaseConfig.apiKey}`;
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        const json = await res.json();
+                        (json.documents || []).forEach(doc => {
+                            const f = doc.fields || {};
+                            let parsedData = null;
+                            if (f.dataJson && f.dataJson.stringValue) {
+                                try { parsedData = JSON.parse(f.dataJson.stringValue); } catch (e) {}
+                            }
+                            if (f.weekStartDate && parsedData) {
+                                cloudEntries.push({
+                                    id: f.id?.stringValue || f.weekStartDate.stringValue,
+                                    weekStartDate: f.weekStartDate.stringValue,
+                                    header2: f.header2?.stringValue || '',
+                                    header3: f.header3?.stringValue || '',
+                                    savedAt: f.savedAt?.stringValue || '',
+                                    updatedAt: f.updatedAt?.stringValue || '',
+                                    data: parsedData
+                                });
+                            }
+                        });
+                    }
+                }
+
+                if (cloudEntries.length > 0) {
+                    const localMap = getStoredWeeklyHistory();
+                    cloudEntries.forEach(ce => {
+                        const existing = localMap[ce.weekStartDate];
+                        if (!existing || (ce.updatedAt && (!existing.updatedAt || ce.updatedAt > existing.updatedAt))) {
+                            localMap[ce.weekStartDate] = ce;
+                        }
+                    });
+                    setStoredWeeklyHistory(localMap);
+                }
+
+                renderWeeklyHistoryList();
+                setWeeklySyncDot('ok');
+                const el = document.getElementById('weekly-last-sync-time');
+                if (el) el.textContent = `ซิงค์ล่าสุด: ${new Date().toLocaleTimeString('th-TH')}`;
+                if (showToastMsg) showToast('ซิงค์ประวัติรายสัปดาห์จาก Cloud สำเร็จ', '☁️');
+            } catch (err) {
+                console.warn('Sync weekly history failed:', err);
+                setWeeklySyncDot('error');
+                if (showToastMsg) showToast('ไม่สามารถเชื่อมต่อ Cloud ได้ (แสดงข้อมูลในเครื่อง)', '⚠️');
+            }
+        }
+
+        function openWeeklyHistoryModal() {
+            renderWeeklyHistoryList();
+            document.getElementById('weeklyHistoryModal').classList.remove('hidden');
+            syncWeeklyHistoryFromCloud(false);
+        }
+
+        function closeWeeklyHistoryModal() {
+            document.getElementById('weeklyHistoryModal').classList.add('hidden');
+        }
+
+        function renderWeeklyHistoryList() {
+            const container = document.getElementById('weeklyHistoryListContainer');
+            if (!container) return;
+            const historyMap = getStoredWeeklyHistory();
+            const entries = Object.values(historyMap).sort((a, b) => (b.weekStartDate || '').localeCompare(a.weekStartDate || ''));
+            const currentWeekId = appState.weekStartDate || '';
+
+            if (entries.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">ยังไม่มีประวัติรายสัปดาห์ที่บันทึกไว้<br><span class="text-xs">เมื่อคุณพิมพ์งาน ระบบจะบันทึกสัปดาห์ปัจจุบันให้อัตโนมัติ</span></div>`;
+                return;
+            }
+
+            container.innerHTML = entries.map(entry => {
+                const isCurrent = entry.weekStartDate === currentWeekId;
+                return `
+                    <div class="p-3 rounded-xl border ${isCurrent ? 'border-indigo-300 bg-indigo-50/60' : 'border-slate-200 bg-slate-50/70'} flex items-center justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-sm text-slate-800 truncate">${escapeHtml(entry.header2 || entry.weekStartDate)}</span>
+                                ${isCurrent ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-medium shrink-0">สัปดาห์ที่เปิดอยู่</span>' : ''}
+                            </div>
+                            <div class="text-[11px] text-slate-500 mt-0.5 flex flex-wrap gap-x-3">
+                                <span>📅 เริ่มสัปดาห์: ${escapeHtml(entry.weekStartDate)}</span>
+                                <span>🕒 บันทึกล่าสุด: ${escapeHtml(entry.savedAt || '-')}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="loadWeeklyHistoryEntry('${escapeHtml(entry.weekStartDate)}')" class="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">เปิดแก้ไข</button>
+                            <button onclick="deleteWeeklyHistoryEntry('${escapeHtml(entry.weekStartDate)}')" class="px-2.5 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบประวัติสัปดาห์นี้">ลบ</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadWeeklyHistoryEntry(weekId) {
+            const historyMap = getStoredWeeklyHistory();
+            const entry = historyMap[weekId];
+            if (!entry || !entry.data) return;
+
+            appState = JSON.parse(JSON.stringify(entry.data));
+            if (Array.isArray(appState.days)) {
+                appState.days.forEach(normalizeDay);
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            renderEditor();
+            requestRender();
+            closeWeeklyHistoryModal();
+            showToast(`โหลดตาราง "${entry.header2 || weekId}" เรียบร้อย`, '📂');
+        }
+
+        async function deleteWeeklyHistoryEntry(weekId) {
+            if (!confirm(`ต้องการลบประวัติสัปดาห์ ${weekId} ออกจากระบบหรือไม่?`)) return;
+            const historyMap = getStoredWeeklyHistory();
+            delete historyMap[weekId];
+            setStoredWeeklyHistory(historyMap);
+            renderWeeklyHistoryList();
+
+            try {
+                if (isFirebaseReady && db) {
+                    await db.collection(WEEKLY_FIRESTORE_COLLECTION).doc(weekId).delete();
+                } else {
+                    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${WEEKLY_FIRESTORE_COLLECTION}/${weekId}?key=${firebaseConfig.apiKey}`;
+                    await fetch(url, { method: 'DELETE' });
+                }
+                showToast('ลบประวัติรายสัปดาห์เรียบร้อย', '🗑️');
+            } catch (err) {
+                console.warn('Cloud delete failed:', err);
+                showToast('ลบในเครื่องแล้ว (คลาวด์ขัดข้อง)', '⚠️');
+            }
+        }
+
+        async function sharePoster() {
+            try {
+                await document.fonts.ready;
+                drawPosterCanvas();
+                const canvas = document.getElementById('poster-canvas');
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                if (!blob) throw new Error('ไม่สามารถสร้างไฟล์รูปภาพได้');
+
+                const cleanTitle = (appState.header2 || 'ตารางปฏิบัติการ').replace(/[^a-zA-Z0-9ก-๙\-]/g, '_');
+                const file = new File([blob], `ตารางปฏิบัติการ_${cleanTitle}.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: appState.header1 || 'ตารางปฏิบัติการ',
+                        text: appState.header2 || ''
+                    });
+                    showToast('แชร์รูปภาพสำเร็จ!', '🎉');
+                } else {
+                    // Fallback สำหรับเบราว์เซอร์บนคอมพิวเตอร์ที่ไม่รองรับ Web Share API
+                    if (typeof copyPosterToClipboard === 'function') {
+                        await copyPosterToClipboard();
+                    } else {
+                        showToast('อุปกรณ์นี้ไม่รองรับการแชร์โดยตรง กรุณากดดาวน์โหลด PNG', 'ℹ️');
+                    }
+                }
+            } catch (err) {
+                if (err && err.name === 'AbortError') return; // ผู้ใช้กดยกเลิกการแชร์
+                console.error('Share failed:', err);
+                showToast('แชร์ไม่สำเร็จ ลองกด "ดาวน์โหลด PNG" แทนนะครับ', '⚠️');
+            }
+        }
+
+        function copyFromPreviousWeek() {
+            const currentMonday = getCurrentReferenceMonday();
+            const prevMonday = new Date(currentMonday);
+            prevMonday.setDate(prevMonday.getDate() - 7);
+            const prevWeekId = formatDateToISO(prevMonday);
+
+            const historyMap = getStoredWeeklyHistory();
+            const prevEntry = historyMap[prevWeekId];
+            if (!prevEntry || !prevEntry.data || !Array.isArray(prevEntry.data.days)) {
+                showToast(`ไม่พบข้อมูลของสัปดาห์ก่อนหน้า (${prevWeekId})`, '⚠️');
+                return;
+            }
+
+            if (!confirm(`ต้องการคัดลอกรายการงานจากสัปดาห์ก่อน (${prevEntry.header2 || prevWeekId}) มาใส่สัปดาห์นี้หรือไม่?`)) {
+                return;
+            }
+
+            const prevDays = prevEntry.data.days;
+            appState.days.forEach((day, idx) => {
+                const src = prevDays[idx];
+                if (src) {
+                    day.morning = JSON.parse(JSON.stringify(normalizePeriod(src.morning)));
+                    day.afternoon = JSON.parse(JSON.stringify(normalizePeriod(src.afternoon)));
+                    day.isHoliday = !!src.isHoliday;
+                    day.holidayText = src.holidayText || '';
+                }
+            });
+
+            saveState();
+            renderEditor();
+            requestRender();
+            showToast(`คัดลอกงานจากสัปดาห์ก่อน (${prevEntry.header2 || prevWeekId}) เรียบร้อย`, '📋');
+        }
+
+        function toggleMobileNavbar() {
+            const nav = document.getElementById('navbar-actions');
+            if (!nav) return;
+            nav.classList.toggle('hidden');
+            nav.classList.toggle('flex');
+        }
+
+        let isMobilePreview = false;
+        function toggleMobileView() {
+            isMobilePreview = !isMobilePreview;
+            const editor = document.getElementById('editor-section');
+            const preview = document.getElementById('preview-section');
+            const icon = document.getElementById('mobile-toggle-icon');
+            const label = document.getElementById('mobile-toggle-label');
+            if (!editor || !preview) return;
+
+            if (isMobilePreview) {
+                editor.classList.add('hidden', 'lg:block');
+                preview.classList.remove('hidden');
+                preview.classList.add('flex');
+                if (icon) icon.textContent = '✏️';
+                if (label) label.textContent = 'กลับไปแก้ไข';
+                requestRender();
+            } else {
+                editor.classList.remove('hidden', 'lg:block');
+                preview.classList.add('hidden');
+                preview.classList.remove('flex');
+                if (icon) icon.textContent = '👁️';
+                if (label) label.textContent = 'ดูพรีวิว';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         // เริ่มต้นทำงาน
         window.addEventListener('DOMContentLoaded', async () => {
             renderEditor();
             requestRender();
+            updateWeeklyCountBadge();
 
-            // ซิงค์เทมเพลตจาก Firebase Cloud ตั้งแต่ตอนเปิดเว็บ
+            // ซิงค์เทมเพลตและประวัติรายสัปดาห์จาก Firebase Cloud ตั้งแต่ตอนเปิดเว็บ
             syncTemplatesFromCloud(false);
+            syncWeeklyHistoryFromCloud(false);
 
             if (document.fonts && document.fonts.ready) {
                 try {
